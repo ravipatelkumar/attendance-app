@@ -33,15 +33,21 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .hdr-logo{font-family:var(--mono);font-size:19px;font-weight:700;letter-spacing:-1px;
   background:linear-gradient(90deg,var(--accent),#00aaff);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-right{display:flex;align-items:center;gap:10px}
 .hdr-time{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:1px;line-height:1.3;text-align:right}
 .hdr-date{font-size:10px;color:var(--muted);text-align:right}
+
+/* SYNC INDICATOR */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .3s}
+.sync-dot.online{background:var(--a3);box-shadow:0 0 6px var(--a3)}
+.sync-dot.syncing{background:var(--a4);animation:blink 1s infinite}
+.sync-dot.offline{background:var(--a2)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* HAMBURGER */
 .burger{background:none;border:none;cursor:pointer;padding:6px;color:var(--text);
   display:flex;flex-direction:column;gap:5px;width:36px;align-items:center}
-.burger span{display:block;height:2px;background:var(--text);border-radius:2px;
-  transition:all .3s ease}
+.burger span{display:block;height:2px;background:var(--text);border-radius:2px;transition:all .3s ease}
 .burger span:nth-child(1){width:22px}
 .burger span:nth-child(2){width:16px}
 .burger span:nth-child(3){width:20px}
@@ -49,19 +55,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .burger.open span:nth-child(2){opacity:0;transform:translateX(-10px)}
 .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);width:20px}
 
-/* DRAWER MENU */
+/* DRAWER */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;opacity:0;pointer-events:none;transition:opacity .3s}
 .overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;left:-280px;width:280px;height:100vh;z-index:500;
+.drawer{position:fixed;top:0;left:-285px;width:285px;height:100vh;z-index:500;
   background:var(--surf);border-right:1px solid var(--border);
   transition:left .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding-bottom:40px}
 .drawer.open{left:0}
-.drawer-head{padding:20px 20px 16px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px}
+.drawer-head{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
 .drawer-logo{font-family:var(--mono);font-size:20px;font-weight:700;
   background:linear-gradient(90deg,var(--accent),#00aaff);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.drawer-sub{font-size:11px;color:var(--muted)}
+.drawer-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.cloud-status{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--muted)}
 .drawer-section{padding:12px 0 4px 20px;font-size:10px;font-weight:800;
   color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
 .drawer-item{display:flex;align-items:center;gap:14px;padding:13px 20px;
@@ -69,7 +75,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   color:var(--text);font-family:var(--sans);font-size:15px;font-weight:600;width:100%;text-align:left}
 .drawer-item:hover{background:rgba(0,229,255,.06)}
 .drawer-item.active{background:rgba(0,229,255,.1);color:var(--accent)}
-.drawer-item.active .di-icon{background:rgba(0,229,255,.15);color:var(--accent)}
 .di-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.05);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .drawer-badge{margin-left:auto;background:var(--accent);color:#000;
@@ -89,20 +94,29 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .ct{font-family:var(--mono);font-size:10px;color:var(--muted);
   text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
 
-/* SCAN / HOME */
+/* LOADING OVERLAY */
+.loading-screen{position:fixed;inset:0;background:var(--bg);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loading-logo{font-family:var(--mono);font-size:32px;font-weight:700;
+  background:linear-gradient(90deg,var(--accent),#00aaff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.loading-bar{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.loading-fill{height:100%;background:linear-gradient(90deg,var(--accent),#00aaff);
+  border-radius:2px;animation:loadAnim 1.5s ease-in-out infinite}
+@keyframes loadAnim{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+.loading-text{font-size:12px;color:var(--muted)}
+
+/* SCAN */
 .scan-wrap{border-radius:16px;overflow:hidden;border:2px solid var(--border);
-  background:#000;margin-bottom:12px;position:relative;min-height:260px}
+  background:#000;margin-bottom:12px;min-height:260px}
 #qr-reader{width:100%!important}
 #qr-reader video{width:100%!important;object-fit:cover}
 #qr-reader__scan_region{background:transparent!important}
-#qr-reader__dashboard{background:var(--surf)!important;padding:10px!important;
-  border-top:1px solid var(--border)!important}
-#qr-reader__dashboard button{
-  background:var(--accent)!important;color:#000!important;border:none!important;
-  border-radius:8px!important;padding:7px 14px!important;
-  font-family:var(--sans)!important;font-weight:700!important;cursor:pointer!important;margin:3px!important}
-#qr-reader__dashboard select{
-  background:var(--surf)!important;color:var(--text)!important;
+#qr-reader__dashboard{background:var(--surf)!important;padding:10px!important;border-top:1px solid var(--border)!important}
+#qr-reader__dashboard button{background:var(--accent)!important;color:#000!important;border:none!important;
+  border-radius:8px!important;padding:7px 14px!important;font-family:var(--sans)!important;
+  font-weight:700!important;cursor:pointer!important;margin:3px!important}
+#qr-reader__dashboard select{background:var(--surf)!important;color:var(--text)!important;
   border:1px solid var(--border)!important;border-radius:8px!important;padding:5px!important}
 #qr-reader__header_message{color:var(--muted)!important;font-size:11px!important;font-family:var(--sans)!important}
 
@@ -110,22 +124,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   text-align:center;min-height:52px;display:flex;align-items:center;justify-content:center;
   gap:8px;line-height:1.4;transition:all .3s;
   background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:var(--accent)}
-.scan-result.ok{background:rgba(105,255,71,.12);border-color:rgba(105,255,71,.4);
-  color:var(--a3);animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+.scan-result.ok{background:rgba(105,255,71,.12);border-color:rgba(105,255,71,.4);color:var(--a3);animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 .scan-result.warn{background:rgba(255,171,64,.1);border-color:rgba(255,171,64,.3);color:var(--a4)}
 .scan-result.err{background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.3);color:var(--a2)}
 @keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
 
-/* TODAY STATS */
+/* STATS */
 .today-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.ts-box{background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:12px 8px;text-align:center}
+.ts-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
 .ts-num{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1;margin-bottom:2px}
 .ts-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 
-/* RECENT LOG */
-.log-item{display:flex;align-items:center;gap:10px;padding:10px 0;
-  border-bottom:1px solid rgba(27,58,85,.5)}
+/* LOG ITEM */
+.log-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(27,58,85,.5)}
 .log-item:last-child{border-bottom:none}
 .log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .log-info{flex:1;min-width:0}
@@ -137,7 +148,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   padding:2px 7px;border-radius:20px;margin-top:2px}
 .tag-in{background:rgba(105,255,71,.12);color:var(--a3);border:1px solid rgba(105,255,71,.3)}
 .tag-out{background:rgba(255,64,129,.12);color:var(--a2);border:1px solid rgba(255,64,129,.3)}
-.tag-skip{background:rgba(255,171,64,.1);color:var(--a4);border:1px solid rgba(255,171,64,.3)}
 
 /* AVATAR */
 .avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
@@ -145,16 +155,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* INPUTS */
 .ig{margin-bottom:12px}
-.il{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;
-  font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-input,select,textarea{width:100%;background:rgba(255,255,255,.04);
-  border:1px solid var(--border);border-radius:10px;padding:11px 14px;
-  color:var(--text);font-family:var(--sans);font-size:14px;outline:none;
-  transition:border-color .2s,box-shadow .2s}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.1)}
-input[type=time],input[type=date],input[type=number]{color-scheme:dark}
+.il{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+input,select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:10px;padding:11px 14px;color:var(--text);font-family:var(--sans);
+  font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.1)}
+input[type=time],input[type=date],input[type=number],input[type=month]{color-scheme:dark}
 select option{background:var(--surf)}
-input[type=checkbox]{width:auto;accent-color:var(--accent)}
 
 /* BUTTONS */
 .btn{padding:12px 20px;border-radius:12px;border:none;font-family:var(--sans);
@@ -166,16 +173,14 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 .btn-y{background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.3);color:var(--a4)}
 .btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;width:auto}
 
-/* EMPLOYEE LIST */
-.emp-row{display:flex;align-items:center;gap:10px;padding:10px 0;
-  border-bottom:1px solid rgba(27,58,85,.5)}
+/* EMP ROW */
+.emp-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(27,58,85,.5)}
 .emp-row:last-child{border-bottom:none}
 .emp-info{flex:1;min-width:0}
 .emp-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .emp-meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
-.emp-actions{display:flex;gap:6px;flex-shrink:0}
 
-/* QR MODAL */
+/* MODALS */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
   z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-bg.open{display:flex}
@@ -186,45 +191,29 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 #qrDisplay{display:flex;justify-content:center;margin:16px 0}
 #qrDisplay canvas,#qrDisplay img{border-radius:10px!important;border:4px solid #fff!important}
 
-/* ADMIN CONFIRM MODAL */
 .admin-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
   z-index:700;display:none;align-items:center;justify-content:center;padding:20px}
 .admin-modal.open{display:flex}
 .admin-box{background:var(--card);border:1px solid var(--a2);border-radius:20px;
-  padding:28px;max-width:320px;width:100%;text-align:center;
-  animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+  padding:28px;max-width:320px;width:100%;text-align:center;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
 .admin-box h3{font-family:var(--mono);font-size:16px;color:var(--a2);margin-bottom:8px}
 .admin-box p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5}
-.admin-box input{margin-bottom:14px;text-align:center;font-size:18px;
-  font-family:var(--mono);letter-spacing:3px}
 
 /* REPORTS */
 .rtable{width:100%;border-collapse:collapse;font-size:12px}
-.rtable th{background:rgba(0,229,255,.06);color:var(--accent);padding:9px 10px;
-  text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;
-  letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.rtable th{background:rgba(0,229,255,.06);color:var(--accent);padding:9px 10px;text-align:left;
+  font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border)}
 .rtable td{padding:9px 10px;border-bottom:1px solid rgba(27,58,85,.3);vertical-align:middle}
-.rtable tr:last-child td{border-bottom:none}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;
-  font-size:10px;font-weight:800;font-family:var(--mono)}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;font-family:var(--mono)}
 .b-g{background:rgba(105,255,71,.12);color:var(--a3);border:1px solid rgba(105,255,71,.3)}
 .b-r{background:rgba(255,64,129,.12);color:var(--a2);border:1px solid rgba(255,64,129,.3)}
 .b-y{background:rgba(255,171,64,.12);color:var(--a4);border:1px solid rgba(255,171,64,.3)}
-.b-b{background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.3)}
 
-/* EMPTY */
-.empty{text-align:center;padding:36px 20px;color:var(--muted)}
-.empty-ic{font-size:36px;margin-bottom:10px;opacity:.5}
-
-/* EMPLOYEE SELF-VIEW */
-.ev-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
-.ev-num{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;margin-bottom:4px}
-.ev-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-
-/* MONTH CHART */
+/* CALENDAR */
 .month-chart{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
 .day-dot{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;
-  justify-content:center;font-size:9px;font-weight:700;font-family:var(--mono);cursor:default}
+  justify-content:center;font-size:9px;font-weight:700;font-family:var(--mono)}
 .dd-p{background:rgba(105,255,71,.2);color:var(--a3);border:1px solid rgba(105,255,71,.3)}
 .dd-a{background:rgba(255,64,129,.1);color:var(--a2);border:1px solid rgba(255,64,129,.2)}
 .dd-h{background:rgba(255,171,64,.15);color:var(--a4);border:1px solid rgba(255,171,64,.3)}
@@ -239,25 +228,24 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 .sr-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.1);
-  border-radius:24px;transition:.3s;cursor:pointer;border:1px solid var(--border)}
-.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;
-  left:2px;bottom:2px;background:var(--muted);border-radius:50%;transition:.3s}
+.toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:24px;
+  transition:.3s;cursor:pointer;border:1px solid var(--border)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:2px;bottom:2px;
+  background:var(--muted);border-radius:50%;transition:.3s}
 .toggle input:checked+.toggle-slider{background:rgba(0,229,255,.2);border-color:var(--accent)}
 .toggle input:checked+.toggle-slider::before{transform:translateX(20px);background:var(--accent)}
 
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;
-  transform:translateX(-50%) translateY(80px);
-  background:var(--card);border:1px solid var(--accent);
-  color:var(--text);padding:11px 22px;border-radius:30px;
-  font-size:13px;z-index:999;font-weight:600;
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-  white-space:nowrap;box-shadow:0 0 24px rgba(0,229,255,.2)}
-.toast.show{transform:translateX(-50%) translateY(0)}
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;color:var(--muted)}
+.empty-ic{font-size:36px;margin-bottom:10px;opacity:.5}
 
-/* DIVIDER */
-.divider{height:1px;background:var(--border);margin:16px 0}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--card);border:1px solid var(--accent);color:var(--text);
+  padding:11px 22px;border-radius:30px;font-size:13px;z-index:999;font-weight:600;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;
+  box-shadow:0 0 24px rgba(0,229,255,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
 
 /* INSTALL BAR */
 .install-bar{background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,170,255,.08));
@@ -271,6 +259,13 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">PunchX</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-text" id="loadingText">Firebase se connect ho raha hai…</div>
+</div>
+
 <!-- HEADER -->
 <div class="hdr">
   <button class="burger" id="burgerBtn" onclick="toggleDrawer()">
@@ -278,6 +273,7 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
   </button>
   <div class="hdr-logo">PunchX</div>
   <div class="hdr-right">
+    <div class="sync-dot" id="syncDot" title="Connection status"></div>
     <div>
       <div class="hdr-time" id="liveTime">00:00:00</div>
       <div class="hdr-date" id="liveDate"></div>
@@ -285,15 +281,15 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
   </div>
 </div>
 
-<!-- OVERLAY -->
+<!-- OVERLAY + DRAWER -->
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
-
-<!-- DRAWER -->
 <div class="drawer" id="drawer">
   <div class="drawer-head">
-    <div>
-      <div class="drawer-logo">PunchX</div>
-      <div class="drawer-sub">Smart Office Attendance</div>
+    <div class="drawer-logo">PunchX</div>
+    <div class="drawer-sub">Smart Office Attendance</div>
+    <div class="cloud-status">
+      <div class="sync-dot" id="syncDot2"></div>
+      <span id="syncLabel">Connecting…</span>
     </div>
   </div>
 
@@ -326,211 +322,138 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
   </button>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: SCANNER (HOME)
-══════════════════════════════════ -->
+<!-- PAGE: SCANNER -->
 <div class="page active" id="page-scan">
-
   <div class="install-bar" id="installBar">
     <div style="font-size:22px">📱</div>
     <div style="flex:1;font-size:12px;line-height:1.5"><strong style="color:var(--accent)">App Install Karein!</strong><br>Home Screen par add karein</div>
     <button style="background:var(--accent);color:#000;border:none;padding:7px 14px;border-radius:20px;font-weight:800;cursor:pointer;font-family:var(--sans);font-size:11px" onclick="installPWA()">Install</button>
   </div>
-
   <div class="card" style="padding:14px">
-    <div class="ct">📷 QR Scanner — Auto Punch</div>
-    <div class="scan-wrap">
-      <div id="qr-reader"></div>
-    </div>
-    <div class="scan-result" id="scanResult">
-      📷 Employee ka QR code camera ke saamne rakhen…
-    </div>
+    <div class="ct">📷 QR Scanner — Auto Smart Punch</div>
+    <div class="scan-wrap"><div id="qr-reader"></div></div>
+    <div class="scan-result" id="scanResult">📷 Employee ka QR code camera ke saamne rakhen…</div>
   </div>
-
   <div class="today-stats">
-    <div class="ts-box">
-      <div class="ts-num" id="stIn" style="color:var(--a3)">0</div>
-      <div class="ts-lbl">Aaj In</div>
-    </div>
-    <div class="ts-box">
-      <div class="ts-num" id="stOut" style="color:var(--a2)">0</div>
-      <div class="ts-lbl">Aaj Out</div>
-    </div>
-    <div class="ts-box">
-      <div class="ts-num" id="stPresent" style="color:var(--accent)">0</div>
-      <div class="ts-lbl">Present</div>
-    </div>
+    <div class="ts-box"><div class="ts-num" id="stIn" style="color:var(--a3)">0</div><div class="ts-lbl">Aaj In</div></div>
+    <div class="ts-box"><div class="ts-num" id="stOut" style="color:var(--a2)">0</div><div class="ts-lbl">Aaj Out</div></div>
+    <div class="ts-box"><div class="ts-num" id="stPresent" style="color:var(--accent)">0</div><div class="ts-lbl">Present</div></div>
   </div>
-
   <div class="card">
     <div class="ct">Recent Punches</div>
-    <div id="recentPunches">
-      <div class="empty"><div class="empty-ic">⏱</div><div style="font-size:13px">Abhi koi punch nahi hua</div></div>
-    </div>
+    <div id="recentPunches"><div class="empty"><div class="empty-ic">⏱</div><div style="font-size:13px">Abhi koi punch nahi hua</div></div></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: EMPLOYEES
-══════════════════════════════════ -->
+<!-- PAGE: EMPLOYEES -->
 <div class="page" id="page-employees">
   <div class="card">
     <div class="ct">✨ New Employee Add Karein</div>
-    <div class="ig"><label class="il">Naam *</label>
-      <input type="text" id="eN" placeholder="Employee ka poora naam"/>
+    <div class="ig"><label class="il">Naam *</label><input type="text" id="eN" placeholder="Employee ka poora naam"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ig"><label class="il">Employee ID</label><input type="text" id="eI" placeholder="EMP001"/></div>
+      <div class="ig"><label class="il">Department</label><input type="text" id="eD" placeholder="HR / IT / Sales"/></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="ig"><label class="il">Employee ID</label>
-        <input type="text" id="eI" placeholder="EMP001"/>
-      </div>
-      <div class="ig"><label class="il">Department</label>
-        <input type="text" id="eD" placeholder="HR / IT / Sales"/>
-      </div>
+      <div class="ig"><label class="il">Shift Start</label><input type="time" id="eShiftIn" value="09:00"/></div>
+      <div class="ig"><label class="il">Late After</label><input type="time" id="eLate" value="09:30"/></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="ig"><label class="il">Shift Start</label>
-        <input type="time" id="eShiftIn" value="09:00"/>
-      </div>
-      <div class="ig"><label class="il">Late After</label>
-        <input type="time" id="eLate" value="09:30"/>
-      </div>
-    </div>
-    <div class="ig"><label class="il">Duty Hours (per day)</label>
-      <input type="number" id="eDuty" placeholder="8" min="1" max="24" value="8"/>
-    </div>
+    <div class="ig"><label class="il">Duty Hours / Day</label><input type="number" id="eDuty" value="8" min="1" max="24"/></div>
     <button class="btn btn-p" onclick="addEmployee()">+ Add Employee & Generate QR</button>
   </div>
-
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="ct" style="margin:0">👥 All Employees (<span id="empCount">0</span>)</div>
     </div>
-    <div id="empList">
-      <div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Koi employee nahi. Upar se add karein!</div></div>
-    </div>
+    <div id="empList"><div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Loading…</div></div></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: PUNCH LOGS
-══════════════════════════════════ -->
+<!-- PAGE: LOGS -->
 <div class="page" id="page-logs">
   <div class="card">
     <div class="ct">🔍 Filter</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="ig" style="margin:0"><label class="il">Date</label>
-        <input type="date" id="logDate"/>
-      </div>
+      <div class="ig" style="margin:0"><label class="il">Date</label><input type="date" id="logDate"/></div>
       <div class="ig" style="margin:0"><label class="il">Type</label>
-        <select id="logType">
-          <option value="all">All</option>
-          <option value="in">Punch In</option>
-          <option value="out">Punch Out</option>
-        </select>
+        <select id="logType"><option value="all">All</option><option value="in">Punch In</option><option value="out">Punch Out</option></select>
       </div>
     </div>
     <button class="btn btn-p" onclick="renderLogs()" style="margin-top:12px">Filter</button>
   </div>
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="ct" style="margin:0">All Punch Records</div>
+      <div class="ct" style="margin:0">Punch Records</div>
       <button class="btn btn-d btn-sm" onclick="adminAction('clearLogs')">🗑 Clear</button>
     </div>
-    <div id="logsList">
-      <div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi</div></div>
-    </div>
+    <div id="logsList"><div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi</div></div></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: ADMIN REPORTS
-══════════════════════════════════ -->
+<!-- PAGE: REPORTS -->
 <div class="page" id="page-reports">
   <div class="card">
     <div class="ct">📊 Report Generate Karein</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="ig" style="margin:0"><label class="il">From</label>
-        <input type="date" id="rFrom"/>
-      </div>
-      <div class="ig" style="margin:0"><label class="il">To</label>
-        <input type="date" id="rTo"/>
-      </div>
+      <div class="ig" style="margin:0"><label class="il">From</label><input type="date" id="rFrom"/></div>
+      <div class="ig" style="margin:0"><label class="il">To</label><input type="date" id="rTo"/></div>
     </div>
     <div class="ig" style="margin-top:12px;margin-bottom:0"><label class="il">Department</label>
       <select id="rDept"><option value="all">Sab Departments</option></select>
     </div>
-    <button class="btn btn-p" onclick="genReport()" style="margin-top:12px">Report Generate Karein</button>
+    <button class="btn btn-p" onclick="genReport()" style="margin-top:12px">Generate</button>
   </div>
   <div id="reportOut"></div>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: EMPLOYEE SELF VIEW
-══════════════════════════════════ -->
+<!-- PAGE: EMPLOYEE VIEW -->
 <div class="page" id="page-empview">
   <div class="card">
     <div class="ct">👤 Apna Data Dekhein</div>
-    <div class="ig"><label class="il">Employee ID Enter Karein</label>
-      <input type="text" id="evId" placeholder="EMP001" style="text-transform:uppercase"/>
-    </div>
-    <div class="ig" style="margin:0"><label class="il">Month Select Karein</label>
-      <input type="month" id="evMonth"/>
-    </div>
+    <div class="ig"><label class="il">Employee ID</label><input type="text" id="evId" placeholder="EMP001" style="text-transform:uppercase"/></div>
+    <div class="ig" style="margin:0"><label class="il">Month</label><input type="month" id="evMonth"/></div>
     <button class="btn btn-p" onclick="loadEmpView()" style="margin-top:12px">Dekho 👁</button>
   </div>
   <div id="empViewOut"></div>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: SETTINGS
-══════════════════════════════════ -->
+<!-- PAGE: SETTINGS -->
 <div class="page" id="page-settings">
   <div class="card">
-    <div class="ct">🏢 Company / Office Settings</div>
-
+    <div class="ct">🏢 Office Settings</div>
     <div class="setting-row">
       <div><div class="sr-label">Company Name</div></div>
-      <input type="text" id="sCompany" placeholder="My Office" style="width:160px;padding:7px 10px;font-size:13px"/>
+      <input type="text" id="sCompany" placeholder="My Office" style="width:150px;padding:7px 10px;font-size:13px"/>
     </div>
-
     <div class="setting-row">
-      <div><div class="sr-label">Default Duty Hours</div><div class="sr-sub">Per employee per day</div></div>
-      <input type="number" id="sDutyHrs" value="8" min="1" max="24" style="width:80px;padding:7px 10px;font-size:14px;text-align:center"/>
+      <div><div class="sr-label">Default Duty Hours</div><div class="sr-sub">Per day</div></div>
+      <input type="number" id="sDutyHrs" value="8" min="1" max="24" style="width:70px;padding:7px 10px;font-size:14px;text-align:center"/>
     </div>
-
     <div class="setting-row">
-      <div><div class="sr-label">Half Day Threshold</div><div class="sr-sub">Kam ghante = half day</div></div>
-      <input type="number" id="sHalfDay" value="4" min="1" max="12" style="width:80px;padding:7px 10px;font-size:14px;text-align:center"/>
+      <div><div class="sr-label">Half Day Threshold</div><div class="sr-sub">Ghante se kam = half day</div></div>
+      <input type="number" id="sHalfDay" value="4" min="1" max="12" style="width:70px;padding:7px 10px;font-size:14px;text-align:center"/>
     </div>
-
     <div class="setting-row">
       <div><div class="sr-label">Auto Punch Gap</div><div class="sr-sub">Ghante (default: 2)</div></div>
-      <input type="number" id="sPunchGap" value="2" min="1" max="8" style="width:80px;padding:7px 10px;font-size:14px;text-align:center"/>
+      <input type="number" id="sPunchGap" value="2" min="1" max="8" style="width:70px;padding:7px 10px;font-size:14px;text-align:center"/>
     </div>
   </div>
-
   <div class="card">
-    <div class="ct">📅 Weekly Off Settings</div>
-    <div id="weekdayToggles" style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0"></div>
+    <div class="ct">📅 Weekly Off</div>
+    <div id="weekdayToggles" style="display:flex;flex-wrap:wrap;gap:10px;padding:4px 0"></div>
   </div>
-
   <div class="card">
     <div class="ct">🔐 Admin Password</div>
-    <div class="ig"><label class="il">Admin Password Change Karein</label>
-      <input type="password" id="sPass" placeholder="New password"/>
-    </div>
-    <button class="btn btn-y" onclick="changePass()">Password Update Karein</button>
+    <div class="ig"><label class="il">New Password</label><input type="password" id="sPass" placeholder="••••"/></div>
+    <button class="btn btn-y" onclick="changePass()">Password Update</button>
   </div>
-
-  <button class="btn btn-p" onclick="saveSettings()" style="margin-bottom:10px">💾 Settings Save Karein</button>
+  <button class="btn btn-p" onclick="saveSettings()">💾 Settings Save Karein</button>
 </div>
 
-<!-- ══════════════════════════════════
-     PAGE: EXPORT
-══════════════════════════════════ -->
+<!-- PAGE: EXPORT -->
 <div class="page" id="page-export">
   <div class="card">
-    <div class="ct">📤 Export Data</div>
+    <div class="ct">📤 Export Settings</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="ig"><label class="il">From</label><input type="date" id="xFrom"/></div>
       <div class="ig"><label class="il">To</label><input type="date" id="xTo"/></div>
@@ -539,7 +462,7 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
       <select id="xDept"><option value="all">Sab Departments</option></select>
     </div>
   </div>
-  <button class="btn btn-g" onclick="exportExcel()" style="margin-bottom:10px">📗 Excel Export (.xlsx)</button>
+  <button class="btn btn-g" onclick="exportExcel()" style="margin-bottom:10px">📗 Excel Export</button>
   <button class="btn btn-y" onclick="exportCSV()">📄 CSV Export</button>
   <div class="card" style="margin-top:14px">
     <div class="ct">⚙ Data Management</div>
@@ -555,19 +478,17 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
     <div style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--accent)" id="modalName"></div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-family:var(--mono)" id="modalMeta"></div>
     <div id="qrDisplay"></div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      📸 Screenshot lein ya print karein<br>Scanner pe dikhane se punch hoga
-    </div>
-    <button class="btn btn-d btn-sm" onclick="closeModal()" style="width:100%">✕ Band Karein</button>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6">📸 Screenshot lein ya print karein</div>
+    <button class="btn btn-d" onclick="closeModal()">✕ Band Karein</button>
   </div>
 </div>
 
-<!-- ADMIN CONFIRM MODAL -->
+<!-- ADMIN MODAL -->
 <div class="admin-modal" id="adminModal">
   <div class="admin-box">
     <h3>🔐 Admin Confirm</h3>
-    <p id="adminModalMsg">Yeh action sirf admin kar sakta hai.<br>Password enter karein:</p>
-    <input type="password" id="adminPassInput" placeholder="••••••"/>
+    <p id="adminModalMsg">Password enter karein:</p>
+    <input type="password" id="adminPassInput" placeholder="••••" style="text-align:center;font-size:18px;font-family:var(--mono);letter-spacing:3px;margin-bottom:14px"/>
     <div style="display:flex;gap:10px">
       <button class="btn btn-d" onclick="closeAdminModal()">Cancel</button>
       <button class="btn btn-p" onclick="confirmAdmin()">Confirm</button>
@@ -577,195 +498,159 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 
 <div class="toast" id="toast"></div>
 
-<script>
-// ═══════════════════════════════════════════
-// DATA STORE
-// ═══════════════════════════════════════════
-const DB = {
-  employees: [],
-  logs: [],       // {id, empId, empName, dept, empIdNum, type:'in'|'out', ts, date, time, hours?}
-  settings: {
-    company: 'My Office',
-    dutyHrs: 8,
-    halfDayHrs: 4,
-    punchGap: 2,      // hours — within this gap, re-scan is ignored
-    weekOff: [0],     // 0=Sun,1=Mon,...6=Sat
-    adminPass: '1234'
-  },
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs,
+  deleteDoc, onSnapshot, addDoc, query, orderBy, where, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  save() {
-    localStorage.setItem('px_e', JSON.stringify(this.employees));
-    localStorage.setItem('px_l', JSON.stringify(this.logs));
-    localStorage.setItem('px_s', JSON.stringify(this.settings));
-  },
-  load() {
-    try {
-      const e = localStorage.getItem('px_e');
-      const l = localStorage.getItem('px_l');
-      const s = localStorage.getItem('px_s');
-      if (e) this.employees = JSON.parse(e);
-      if (l) this.logs = JSON.parse(l);
-      if (s) this.settings = { ...this.settings, ...JSON.parse(s) };
-    } catch(e) {}
-  },
-  getDepts() {
-    return [...new Set(this.employees.map(e => e.dept).filter(Boolean))];
-  }
+// ═══ FIREBASE CONFIG ═══
+const firebaseConfig = {
+  apiKey: "AIzaSyBphQtwd6wUlkKrvB7y9dVBykYX53x_TBw",
+  authDomain: "attendance-90dc1.firebaseapp.com",
+  projectId: "attendance-90dc1",
+  storageBucket: "attendance-90dc1.firebasestorage.app",
+  messagingSenderId: "928114219702",
+  appId: "1:928114219702:web:ed0c14968644ddadc3e417",
+  measurementId: "G-NKLNHQ9FKB"
 };
-DB.load();
 
-// ═══════════════════════════════════════════
-// CLOCK
-// ═══════════════════════════════════════════
-function updateClock() {
-  const n = new Date();
-  document.getElementById('liveTime').textContent = n.toLocaleTimeString('en-IN', {hour12: false});
-  document.getElementById('liveDate').textContent = n.toLocaleDateString('hi-IN', {weekday:'short', day:'numeric', month:'short'});
-}
-setInterval(updateClock, 1000);
-updateClock();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// ═══════════════════════════════════════════
-// INIT DATES
-// ═══════════════════════════════════════════
-function initDates() {
-  const t = new Date().toISOString().split('T')[0];
-  const m = t.slice(0, 7);
-  document.getElementById('logDate').value = t;
-  document.getElementById('rFrom').value = m + '-01';
-  document.getElementById('rTo').value = t;
-  document.getElementById('xFrom').value = m + '-01';
-  document.getElementById('xTo').value = t;
-  document.getElementById('evMonth').value = m;
-}
-initDates();
+// ═══ REFS ═══
+const empRef = collection(db, 'employees');
+const logsRef = collection(db, 'logs');
+const settingsRef = doc(db, 'config', 'settings');
 
-// ═══════════════════════════════════════════
-// PWA
-// ═══════════════════════════════════════════
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault(); deferredPrompt = e;
-  document.getElementById('installBar').classList.add('show');
-});
-function installPWA() {
-  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { document.getElementById('installBar').classList.remove('show'); deferredPrompt = null; }); }
-  else toast('Browser menu → "Add to Home Screen" 📱');
+// ═══ LOCAL CACHE ═══
+let employees = [];
+let logs = [];
+let settings = {
+  company: 'My Office', dutyHrs: 8, halfDayHrs: 4,
+  punchGap: 2, weekOff: [0], adminPass: '1234'
+};
+
+// ═══ SYNC STATUS ═══
+function setSyncStatus(status) {
+  // status: 'online' | 'syncing' | 'offline'
+  ['syncDot','syncDot2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.className = 'sync-dot ' + status; }
+  });
+  const label = document.getElementById('syncLabel');
+  if(label) {
+    label.textContent = status === 'online' ? '☁️ Cloud Connected' :
+                        status === 'syncing' ? '⏳ Syncing…' : '❌ Offline';
+  }
 }
 
-// ═══════════════════════════════════════════
-// DRAWER / NAV
-// ═══════════════════════════════════════════
-function toggleDrawer() {
-  const d = document.getElementById('drawer');
-  const o = document.getElementById('overlay');
-  const b = document.getElementById('burgerBtn');
-  d.classList.toggle('open');
-  o.classList.toggle('open');
-  b.classList.toggle('open');
-}
-function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('burgerBtn').classList.remove('open');
-}
-function navTo(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.drawer-item').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  const di = document.getElementById('di-' + id);
-  if (di) di.classList.add('active');
-  closeDrawer();
-  if (id === 'logs') renderLogs();
-  if (id === 'settings') loadSettings();
-  if (id === 'export') populateExportFilters();
-  if (id === 'reports') populateReportDept();
-  window.scrollTo(0, 0);
+// ═══ LOAD SETTINGS ═══
+async function loadSettingsFromDB() {
+  try {
+    const snap = await getDoc(settingsRef);
+    if (snap.exists()) settings = { ...settings, ...snap.data() };
+  } catch(e) {}
 }
 
-// ═══════════════════════════════════════════
-// SMART PUNCH LOGIC
-// ═══════════════════════════════════════════
-/*
-  Rules:
-  1. Employee scans QR
-  2. Check last log for this employee TODAY
-  3. No punch today → PUNCH IN
-  4. Last punch was IN, within punchGap hours → IGNORE (too soon)
-  5. Last punch was IN, after punchGap hours → PUNCH OUT (auto)
-  6. Last punch was OUT → new PUNCH IN (new session)
-*/
-function processPunch(emp) {
+async function saveSettingsToDB() {
+  try {
+    setSyncStatus('syncing');
+    await setDoc(settingsRef, settings);
+    setSyncStatus('online');
+    toast('✅ Settings saved to cloud!');
+  } catch(e) { toast('❌ Save failed: ' + e.message); setSyncStatus('offline'); }
+}
+
+// ═══ REALTIME LISTENERS ═══
+function setupListeners() {
+  // Employees realtime
+  onSnapshot(empRef, (snap) => {
+    employees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEmployees();
+    renderScanStats();
+    setSyncStatus('online');
+    document.getElementById('loadingScreen').style.display = 'none';
+  }, (err) => { setSyncStatus('offline'); console.error(err); document.getElementById('loadingScreen').style.display = 'none'; });
+
+  // Logs realtime (latest 100)
+  const logsQ = query(logsRef, orderBy('ts', 'desc'));
+  onSnapshot(logsQ, (snap) => {
+    logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderRecentPunches();
+    renderScanStats();
+    updateDrawerBadge();
+    setSyncStatus('online');
+  }, (err) => { setSyncStatus('offline'); console.error(err); });
+}
+
+// ═══ SMART PUNCH LOGIC ═══
+async function processPunch(emp) {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
-  const gap = DB.settings.punchGap * 60 * 60 * 1000; // ms
+  const gapMs = settings.punchGap * 3600000;
 
-  // All logs for this employee today, sorted oldest first
-  const todayLogs = DB.logs
+  // Get today's logs for this employee from cache
+  const todayLogs = logs
     .filter(l => l.empId === emp.id && l.date === today)
     .sort((a, b) => new Date(a.ts) - new Date(b.ts));
 
   const last = todayLogs.length > 0 ? todayLogs[todayLogs.length - 1] : null;
   const nowMs = now.getTime();
-
-  let type, msg, msgClass;
+  let type = null, msg = '', msgClass = '';
 
   if (!last) {
-    // No punch today → Punch IN
     type = 'in';
-    msg = `✅ PUNCH IN — ${emp.name} @ ${now.toLocaleTimeString('en-IN', {hour12:true})}`;
+    msg = `✅ PUNCH IN — ${emp.name} @ ${now.toLocaleTimeString('en-IN',{hour12:true})}`;
     msgClass = 'ok';
   } else if (last.type === 'in') {
-    const lastMs = new Date(last.ts).getTime();
-    const diff = nowMs - lastMs;
-    if (diff < gap) {
-      // Too soon → ignore
-      const remaining = Math.ceil((gap - diff) / 60000);
-      msg = `⏳ ${emp.name} — ${remaining} minute baad aana (abhi ignore)`;
+    const diff = nowMs - new Date(last.ts).getTime();
+    if (diff < gapMs) {
+      const rem = Math.ceil((gapMs - diff) / 60000);
+      msg = `⏳ ${emp.name} — ${rem} minute baad aana (abhi ignore)`;
       msgClass = 'warn';
-      type = null;
     } else {
-      // After gap → Auto Punch OUT
       type = 'out';
-      const hrs = ((nowMs - lastMs) / 3600000).toFixed(1);
+      const hrs = (( nowMs - new Date(last.ts).getTime()) / 3600000).toFixed(1);
       msg = `🚪 AUTO PUNCH OUT — ${emp.name} | ${hrs} hrs worked`;
       msgClass = 'ok';
     }
   } else {
-    // Last was OUT → new Punch IN
     type = 'in';
-    msg = `✅ PUNCH IN (New Session) — ${emp.name} @ ${now.toLocaleTimeString('en-IN', {hour12:true})}`;
+    msg = `✅ PUNCH IN (New Session) — ${emp.name} @ ${now.toLocaleTimeString('en-IN',{hour12:true})}`;
     msgClass = 'ok';
   }
 
   if (type) {
-    // Calculate working hours if punch-out
-    let hours = null;
-    if (type === 'out' && last) {
-      hours = ((nowMs - new Date(last.ts).getTime()) / 3600000).toFixed(2);
+    setSyncStatus('syncing');
+    try {
+      let hours = null;
+      if (type === 'out' && last) {
+        hours = ((nowMs - new Date(last.ts).getTime()) / 3600000).toFixed(2);
+      }
+      // Check late
+      let late = false;
+      if (type === 'in' && emp.lateAfter) {
+        const [lh, lm] = emp.lateAfter.split(':').map(Number);
+        late = (now.getHours() > lh) || (now.getHours() === lh && now.getMinutes() > lm);
+      }
+      await addDoc(logsRef, {
+        empId: emp.id, empName: emp.name, dept: emp.dept || '',
+        empIdNum: emp.empId || '-', type,
+        ts: now.toISOString(), date: today,
+        time: now.toLocaleTimeString('en-IN', {hour12: true}),
+        hours, late
+      });
+      setSyncStatus('online');
+      toast(type === 'in' ? `✅ ${emp.name} Punch IN!` : `🚪 ${emp.name} Punch OUT!`);
+    } catch(e) {
+      setSyncStatus('offline');
+      toast('❌ Cloud save failed! Check internet.');
     }
-
-    const log = {
-      id: 'l_' + Date.now(),
-      empId: emp.id,
-      empName: emp.name,
-      dept: emp.dept || '',
-      empIdNum: emp.empId || '-',
-      type,
-      ts: now.toISOString(),
-      date: today,
-      time: now.toLocaleTimeString('en-IN', {hour12: true}),
-      hours: hours
-    };
-    DB.logs.unshift(log);
-    DB.save();
-    toast(type === 'in' ? `✅ ${emp.name} Punch IN!` : `🚪 ${emp.name} Punch OUT!`);
   }
 
   setScanResult(msg, msgClass);
-  renderScanStats();
-  renderRecentPunches();
-  updateDrawerBadge();
 }
 
 function setScanResult(msg, cls) {
@@ -774,80 +659,61 @@ function setScanResult(msg, cls) {
   el.className = 'scan-result ' + (cls || '');
 }
 
-// ═══════════════════════════════════════════
-// QR SCANNER — FRONT CAMERA BY DEFAULT
-// ═══════════════════════════════════════════
-let scanner = null;
-let scanCooldown = false;
-let lastScannedText = '';
+// ═══ QR SCANNER — FRONT CAMERA ═══
+let scanner = null, scanCooldown = false, lastText = '';
 
 function startScanner() {
   if (scanner) return;
   scanner = new Html5Qrcode('qr-reader');
   const cfg = { fps: 10, qrbox: { width: 230, height: 230 } };
-
-  // Try FRONT camera first (user-facing)
+  // Front camera first
   scanner.start({ facingMode: 'user' }, cfg, onQR, () => {})
-    .catch(() => {
-      // fallback to environment (back camera)
-      scanner.start({ facingMode: 'environment' }, cfg, onQR, () => {})
-        .catch(() => setScanResult('❌ Camera permission dijiye. Browser settings mein allow karein.', 'err'));
-    });
+    .catch(() => scanner.start({ facingMode: 'environment' }, cfg, onQR, () => {})
+      .catch(() => setScanResult('❌ Camera permission dijiye!', 'err')));
 }
 
 function onQR(text) {
-  if (scanCooldown || text === lastScannedText) return;
-  lastScannedText = text;
-  scanCooldown = true;
+  if (scanCooldown || text === lastText) return;
+  lastText = text; scanCooldown = true;
 
   if (!text.startsWith('PUNCHX::')) {
     setScanResult('⚠️ Yeh PunchX QR code nahi hai!', 'err');
-    setTimeout(() => { scanCooldown = false; lastScannedText = ''; setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', ''); }, 2500);
+    setTimeout(() => { scanCooldown = false; lastText = ''; setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', ''); }, 2500);
     return;
   }
 
   const empId = text.replace('PUNCHX::', '');
-  const emp = DB.employees.find(e => e.id === empId);
+  const emp = employees.find(e => e.id === empId);
   if (!emp) {
-    setScanResult('❌ Employee nahi mila! Employees page par pehle add karein.', 'err');
-    setTimeout(() => { scanCooldown = false; lastScannedText = ''; setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', ''); }, 2500);
+    setScanResult('❌ Employee nahi mila! Pehle add karein.', 'err');
+    setTimeout(() => { scanCooldown = false; lastText = ''; setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', ''); }, 2500);
     return;
   }
 
   processPunch(emp);
-
-  setTimeout(() => {
-    scanCooldown = false; lastScannedText = '';
-    setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', '');
-  }, 3500);
+  setTimeout(() => { scanCooldown = false; lastText = ''; setScanResult('📷 Employee ka QR code camera ke saamne rakhen…', ''); }, 3500);
 }
 
-setTimeout(startScanner, 600);
+setTimeout(startScanner, 800);
 
-// ═══════════════════════════════════════════
-// SCAN PAGE STATS
-// ═══════════════════════════════════════════
+// ═══ STATS ═══
 function renderScanStats() {
   const today = new Date().toISOString().split('T')[0];
-  const tl = DB.logs.filter(l => l.date === today);
+  const tl = logs.filter(l => l.date === today);
   document.getElementById('stIn').textContent = tl.filter(l => l.type === 'in').length;
   document.getElementById('stOut').textContent = tl.filter(l => l.type === 'out').length;
-  // Unique employees punched in today
-  const inEmpIds = new Set(tl.filter(l => l.type === 'in').map(l => l.empId));
-  document.getElementById('stPresent').textContent = inEmpIds.size;
+  document.getElementById('stPresent').textContent = new Set(tl.filter(l => l.type === 'in').map(l => l.empId)).size;
 }
 
 function renderRecentPunches() {
   const div = document.getElementById('recentPunches');
-  const r = DB.logs.slice(0, 10);
+  const r = logs.slice(0, 10);
   if (!r.length) { div.innerHTML = `<div class="empty"><div class="empty-ic">⏱</div><div style="font-size:13px">Abhi koi punch nahi hua</div></div>`; return; }
   div.innerHTML = r.map(logRowHTML).join('');
 }
 
 function logRowHTML(l) {
   const c = l.type === 'in' ? 'var(--a3)' : 'var(--a2)';
-  const tag = l.type === 'in' ? 'tag-in' : 'tag-out';
-  const tagLabel = l.type === 'in' ? 'IN' : 'OUT';
   return `<div class="log-item">
     <div class="log-dot" style="background:${c}"></div>
     <div class="log-info">
@@ -856,82 +722,69 @@ function logRowHTML(l) {
     </div>
     <div class="log-right">
       <div class="log-time" style="color:${c}">${l.time}</div>
-      <span class="log-tag ${tag}">${tagLabel}</span>
+      <span class="log-tag tag-${l.type}">${l.type.toUpperCase()}</span>
     </div>
   </div>`;
 }
 
 function updateDrawerBadge() {
   const today = new Date().toISOString().split('T')[0];
-  const cnt = DB.logs.filter(l => l.date === today).length;
-  document.getElementById('todayCount').textContent = cnt;
+  document.getElementById('todayCount').textContent = logs.filter(l => l.date === today).length;
 }
 
-// ═══════════════════════════════════════════
-// EMPLOYEES
-// ═══════════════════════════════════════════
+// ═══ EMPLOYEES ═══
 const COLORS = ['#00e5ff','#69ff47','#ff4081','#ffab40','#ea80fc','#40c4ff','#ff6e40','#b2ff59'];
 function getColor(n) { let h = 0; for (let c of n) h += c.charCodeAt(0); return COLORS[h % COLORS.length]; }
 
-function addEmployee() {
+window.addEmployee = async function() {
   const name = document.getElementById('eN').value.trim();
   const empId = document.getElementById('eI').value.trim();
   const dept = document.getElementById('eD').value.trim();
   const shiftIn = document.getElementById('eShiftIn').value;
   const lateAfter = document.getElementById('eLate').value;
-  const dutyHrs = parseFloat(document.getElementById('eDuty').value) || DB.settings.dutyHrs;
-
+  const dutyHrs = parseFloat(document.getElementById('eDuty').value) || 8;
   if (!name) { toast('⚠️ Naam zaroori hai!'); return; }
 
-  const emp = {
-    id: 'e_' + Date.now(),
-    name, dept, shiftIn, lateAfter, dutyHrs,
-    empId: empId || 'EMP' + String(DB.employees.length + 1).padStart(3, '0'),
-    color: getColor(name)
-  };
-  DB.employees.push(emp);
-  DB.save();
+  try {
+    setSyncStatus('syncing');
+    const id = 'e_' + Date.now();
+    await setDoc(doc(db, 'employees', id), {
+      name, dept, shiftIn, lateAfter, dutyHrs, color: getColor(name),
+      empId: empId || 'EMP' + String(employees.length + 1).padStart(3, '0'),
+      createdAt: new Date().toISOString()
+    });
+    setSyncStatus('online');
+    ['eN','eI','eD'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('eShiftIn').value = '09:00';
+    document.getElementById('eLate').value = '09:30';
+    document.getElementById('eDuty').value = '8';
+    toast(`✅ ${name} cloud mein save ho gaya!`);
+  } catch(e) { setSyncStatus('offline'); toast('❌ Error: ' + e.message); }
+};
 
-  ['eN','eI','eD'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('eShiftIn').value = '09:00';
-  document.getElementById('eLate').value = '09:30';
-  document.getElementById('eDuty').value = '8';
-
-  renderEmployees();
-  renderScanStats();
-  toast(`✅ ${name} added! QR button se code dekhen.`);
-}
-
-function deleteEmployee(id) {
-  adminAction('deleteEmp', id);
-}
+window.deleteEmployee = function(id) { adminAction('deleteEmp', id); };
 
 function renderEmployees() {
   const list = document.getElementById('empList');
-  document.getElementById('empCount').textContent = DB.employees.length;
-  if (!DB.employees.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Koi employee nahi. Upar se add karein!</div></div>`;
-    return;
-  }
-  list.innerHTML = DB.employees.map(e => `
+  document.getElementById('empCount').textContent = employees.length;
+  if (!employees.length) { list.innerHTML = `<div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Koi employee nahi. Upar se add karein!</div></div>`; return; }
+  list.innerHTML = employees.map(e => `
     <div class="emp-row">
       <div class="avatar" style="background:${e.color}22;color:${e.color}">${e.name.charAt(0).toUpperCase()}</div>
       <div class="emp-info">
         <div class="emp-name">${e.name}</div>
-        <div class="emp-meta">${e.empId}${e.dept ? ' · ' + e.dept : ''} · ${e.dutyHrs || 8}h</div>
+        <div class="emp-meta">${e.empId}${e.dept ? ' · ' + e.dept : ''} · ${e.dutyHrs || 8}h · Late:${e.lateAfter || '09:30'}</div>
       </div>
-      <div class="emp-actions">
+      <div style="display:flex;gap:6px;flex-shrink:0">
         <button style="background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--sans)" onclick="showQR('${e.id}')">📱 QR</button>
         <button class="btn btn-d btn-sm" onclick="deleteEmployee('${e.id}')">🗑</button>
       </div>
     </div>`).join('');
 }
 
-// ═══════════════════════════════════════════
-// QR MODAL
-// ═══════════════════════════════════════════
-function showQR(id) {
-  const emp = DB.employees.find(e => e.id === id);
+// ═══ QR MODAL ═══
+window.showQR = function(id) {
+  const emp = employees.find(e => e.id === id);
   if (!emp) return;
   document.getElementById('modalName').textContent = emp.name;
   document.getElementById('modalMeta').textContent = emp.empId + (emp.dept ? ' · ' + emp.dept : '');
@@ -939,54 +792,33 @@ function showQR(id) {
   display.innerHTML = '';
   new QRCode(display, { text: 'PUNCHX::' + emp.id, width: 190, height: 190, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
   document.getElementById('qrModal').classList.add('open');
-}
-function closeModal() { document.getElementById('qrModal').classList.remove('open'); }
+};
+window.closeModal = function() { document.getElementById('qrModal').classList.remove('open'); };
 document.getElementById('qrModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-// ═══════════════════════════════════════════
-// LOGS PAGE
-// ═══════════════════════════════════════════
-function renderLogs() {
+// ═══ LOGS PAGE ═══
+window.renderLogs = function() {
   const date = document.getElementById('logDate').value;
   const type = document.getElementById('logType').value;
-  let logs = DB.logs;
-  if (date) logs = logs.filter(l => l.date === date);
-  if (type !== 'all') logs = logs.filter(l => l.type === type);
+  let filtered = logs;
+  if (date) filtered = filtered.filter(l => l.date === date);
+  if (type !== 'all') filtered = filtered.filter(l => l.type === type);
   const div = document.getElementById('logsList');
-  if (!logs.length) { div.innerHTML = `<div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi mila</div></div>`; return; }
-  div.innerHTML = logs.map(logRowHTML).join('');
-}
+  if (!filtered.length) { div.innerHTML = `<div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi</div></div>`; return; }
+  div.innerHTML = filtered.map(logRowHTML).join('');
+};
 
-// ═══════════════════════════════════════════
-// ATTENDANCE STATUS CALC
-// ═══════════════════════════════════════════
+// ═══ ATTENDANCE STATUS ═══
 function getAttStatus(empId, date) {
-  const emp = DB.employees.find(e => e.id === empId);
-  const dutyHrs = emp ? emp.dutyHrs : DB.settings.dutyHrs;
-  const halfHrs = DB.settings.halfDayHrs;
-
-  const dayLogs = DB.logs.filter(l => l.empId === empId && l.date === date).sort((a, b) => new Date(a.ts) - new Date(b.ts));
-  if (!dayLogs.length) return { status: 'A', workedHrs: 0, inTime: '-', outTime: '-', late: false };
-
+  const emp = employees.find(e => e.id === empId);
+  const dutyHrs = emp ? (emp.dutyHrs || settings.dutyHrs) : settings.dutyHrs;
+  const dayLogs = logs.filter(l => l.empId === empId && l.date === date).sort((a,b) => new Date(a.ts)-new Date(b.ts));
+  if (!dayLogs.length) return { status:'A', workedHrs:0, inTime:'-', outTime:'-', late:false };
   const inLog = dayLogs.find(l => l.type === 'in');
   const outLogs = dayLogs.filter(l => l.type === 'out');
-  const outLog = outLogs.length ? outLogs[outLogs.length - 1] : null;
-
-  const inTime = inLog ? inLog.time : '-';
-  const outTime = outLog ? outLog.time : 'Working…';
-
-  // Check late
-  let late = false;
-  if (inLog && emp && emp.lateAfter) {
-    const [lh, lm] = emp.lateAfter.split(':').map(Number);
-    const inDate = new Date(inLog.ts);
-    late = (inDate.getHours() > lh) || (inDate.getHours() === lh && inDate.getMinutes() > lm);
-  }
-
-  // Total worked hours
+  const outLog = outLogs.length ? outLogs[outLogs.length-1] : null;
   let totalMs = 0;
   if (outLog) {
-    // sum up each in-out pair
     let inMs = null;
     dayLogs.forEach(l => {
       if (l.type === 'in') inMs = new Date(l.ts).getTime();
@@ -994,355 +826,319 @@ function getAttStatus(empId, date) {
     });
   }
   const workedHrs = parseFloat((totalMs / 3600000).toFixed(2));
-
   let status;
-  if (!outLog) status = 'P'; // still working
+  if (!outLog) status = 'P';
   else if (workedHrs >= dutyHrs * 0.9) status = 'P';
-  else if (workedHrs >= halfHrs) status = 'H';
+  else if (workedHrs >= settings.halfDayHrs) status = 'H';
   else status = 'A';
-
-  return { status, workedHrs, inTime, outTime, late };
+  return { status, workedHrs, inTime: inLog ? inLog.time : '-', outTime: outLog ? outLog.time : 'Working…', late: inLog ? !!inLog.late : false };
 }
 
-// ═══════════════════════════════════════════
-// REPORTS
-// ═══════════════════════════════════════════
+// ═══ REPORTS ═══
 function populateReportDept() {
-  const sel = document.getElementById('rDept');
-  sel.innerHTML = '<option value="all">Sab Departments</option>' + DB.getDepts().map(d => `<option value="${d}">${d}</option>`).join('');
+  const depts = [...new Set(employees.map(e => e.dept).filter(Boolean))];
+  document.getElementById('rDept').innerHTML = '<option value="all">Sab Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
 }
 
-function genReport() {
+window.genReport = function() {
   const from = document.getElementById('rFrom').value;
   const to = document.getElementById('rTo').value;
   const dept = document.getElementById('rDept').value;
   const out = document.getElementById('reportOut');
-
-  // Generate date list
   const dates = [];
   let cur = new Date(from + 'T00:00:00');
-  const toDate = new Date(to + 'T00:00:00');
-  while (cur <= toDate) {
-    dates.push(cur.toISOString().split('T')[0]);
-    cur.setDate(cur.getDate() + 1);
-  }
-
-  let emps = DB.employees;
-  if (dept !== 'all') emps = emps.filter(e => e.dept === dept);
-
+  while (cur <= new Date(to + 'T00:00:00')) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate()+1); }
+  let emps = dept === 'all' ? employees : employees.filter(e => e.dept === dept);
   if (!emps.length) { out.innerHTML = `<div class="card"><div class="empty"><div class="empty-ic">📊</div><div style="font-size:13px">Koi employee nahi</div></div></div>`; return; }
-
-  // Working days (exclude weekly offs)
-  const workDates = dates.filter(d => !DB.settings.weekOff.includes(new Date(d + 'T00:00:00').getDay()));
-
+  const workDates = dates.filter(d => !settings.weekOff.includes(new Date(d+'T00:00:00').getDay()));
   const rows = emps.map(emp => {
-    let p = 0, a = 0, h = 0, lateCount = 0, totalHrs = 0;
+    let p=0,a=0,h=0,lateC=0,totalHrs=0;
     workDates.forEach(d => {
       const att = getAttStatus(emp.id, d);
-      if (att.status === 'P') p++;
-      else if (att.status === 'H') h++;
-      else a++;
-      if (att.late) lateCount++;
+      if(att.status==='P') p++; else if(att.status==='H') h++; else a++;
+      if(att.late) lateC++;
       totalHrs += att.workedHrs;
     });
-    return { emp, p, a, h, lateCount, totalHrs: totalHrs.toFixed(1), workDays: workDates.length };
+    return {emp,p,a,h,lateC,totalHrs:totalHrs.toFixed(1),workDays:workDates.length};
   });
-
-  const totalP = rows.reduce((s, r) => s + r.p, 0);
-  const totalA = rows.reduce((s, r) => s + r.a, 0);
-
   out.innerHTML = `
     <div class="card">
-      <div class="ct">Summary · ${from} to ${to}</div>
-      <div class="today-stats" style="margin-bottom:0">
-        <div class="ts-box"><div class="ts-num" style="color:var(--a3)">${totalP}</div><div class="ts-lbl">Total P</div></div>
-        <div class="ts-box"><div class="ts-num" style="color:var(--a2)">${totalA}</div><div class="ts-lbl">Total A</div></div>
+      <div class="ct">Summary · ${from} → ${to}</div>
+      <div class="today-stats" style="margin:0">
+        <div class="ts-box"><div class="ts-num" style="color:var(--a3)">${rows.reduce((s,r)=>s+r.p,0)}</div><div class="ts-lbl">Total P</div></div>
+        <div class="ts-box"><div class="ts-num" style="color:var(--a2)">${rows.reduce((s,r)=>s+r.a,0)}</div><div class="ts-lbl">Total A</div></div>
         <div class="ts-box"><div class="ts-num" style="color:var(--accent)">${workDates.length}</div><div class="ts-lbl">Work Days</div></div>
       </div>
     </div>
     <div class="card" style="padding:0;overflow-x:auto">
       <table class="rtable">
-        <thead><tr>
-          <th>Employee</th><th>P</th><th>A</th><th>H</th><th>Late</th><th>Hrs</th><th>%</th>
-        </tr></thead>
-        <tbody>
-          ${rows.map(r => {
-            const pct = r.workDays > 0 ? Math.round(((r.p + r.h * 0.5) / r.workDays) * 100) : 0;
-            const bc = pct >= 90 ? 'b-g' : pct >= 60 ? 'b-y' : 'b-r';
-            return `<tr>
-              <td>
-                <div style="font-weight:700;font-size:13px">${r.emp.name}</div>
-                <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${r.emp.empId}</div>
-              </td>
-              <td style="color:var(--a3);font-weight:800;font-family:var(--mono)">${r.p}</td>
-              <td style="color:var(--a2);font-weight:800;font-family:var(--mono)">${r.a}</td>
-              <td style="color:var(--a4);font-weight:800;font-family:var(--mono)">${r.h}</td>
-              <td style="color:var(--a4);font-family:var(--mono)">${r.lateCount}</td>
-              <td style="color:var(--accent);font-family:var(--mono)">${r.totalHrs}</td>
-              <td><span class="badge ${bc}">${pct}%</span></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
+        <thead><tr><th>Employee</th><th>P</th><th>A</th><th>H</th><th>Late</th><th>Hrs</th><th>%</th></tr></thead>
+        <tbody>${rows.map(r => {
+          const pct = r.workDays > 0 ? Math.round(((r.p+r.h*.5)/r.workDays)*100) : 0;
+          const bc = pct>=90?'b-g':pct>=60?'b-y':'b-r';
+          return `<tr>
+            <td><div style="font-weight:700">${r.emp.name}</div><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${r.emp.empId}</div></td>
+            <td style="color:var(--a3);font-weight:800;font-family:var(--mono)">${r.p}</td>
+            <td style="color:var(--a2);font-weight:800;font-family:var(--mono)">${r.a}</td>
+            <td style="color:var(--a4);font-weight:800;font-family:var(--mono)">${r.h}</td>
+            <td style="color:var(--a4);font-family:var(--mono)">${r.lateC}</td>
+            <td style="color:var(--accent);font-family:var(--mono)">${r.totalHrs}</td>
+            <td><span class="badge ${bc}">${pct}%</span></td>
+          </tr>`;
+        }).join('')}</tbody>
       </table>
     </div>`;
-}
+};
 
-// ═══════════════════════════════════════════
-// EMPLOYEE SELF VIEW
-// ═══════════════════════════════════════════
-function loadEmpView() {
+// ═══ EMPLOYEE SELF VIEW ═══
+window.loadEmpView = function() {
   const empIdInput = document.getElementById('evId').value.trim().toUpperCase();
   const month = document.getElementById('evMonth').value;
   const out = document.getElementById('empViewOut');
-
-  const emp = DB.employees.find(e => e.empId.toUpperCase() === empIdInput);
+  const emp = employees.find(e => e.empId.toUpperCase() === empIdInput);
   if (!emp) { out.innerHTML = `<div class="card"><div class="empty"><div class="empty-ic">❓</div><div style="font-size:13px">Employee ID nahi mila: ${empIdInput}</div></div></div>`; return; }
-
-  // Generate month dates
   const [yr, mo] = month.split('-').map(Number);
   const daysInMonth = new Date(yr, mo, 0).getDate();
-  const dates = Array.from({length: daysInMonth}, (_, i) => `${month}-${String(i+1).padStart(2,'0')}`);
+  const dates = Array.from({length: daysInMonth}, (_,i) => `${month}-${String(i+1).padStart(2,'0')}`);
   const today = new Date().toISOString().split('T')[0];
-
-  let p = 0, a = 0, h = 0, lateCount = 0, totalHrs = 0, workDays = 0;
+  let p=0,a=0,h=0,lateC=0,totalHrs=0,workDays=0;
   const dotData = dates.map(d => {
-    const isOff = DB.settings.weekOff.includes(new Date(d + 'T00:00:00').getDay());
-    const isFuture = d > today;
-    if (isOff) return { d, cls: 'dd-off', label: 'O' };
-    if (isFuture) return { d, cls: 'dd-fut', label: d.slice(-2) };
+    const isOff = settings.weekOff.includes(new Date(d+'T00:00:00').getDay());
+    if (isOff) return {d,cls:'dd-off',label:'O'};
+    if (d > today) return {d,cls:'dd-fut',label:d.slice(-2)};
     workDays++;
     const att = getAttStatus(emp.id, d);
-    if (att.status === 'P') { p++; totalHrs += att.workedHrs; if (att.late) lateCount++; return { d, cls: 'dd-p', label: 'P' }; }
-    if (att.status === 'H') { h++; totalHrs += att.workedHrs; return { d, cls: 'dd-h', label: 'H' }; }
+    totalHrs += att.workedHrs;
+    if (att.status==='P') { p++; if(att.late)lateC++; return {d,cls:'dd-p',label:'P'}; }
+    if (att.status==='H') { h++; return {d,cls:'dd-h',label:'H'}; }
     a++;
-    return { d, cls: 'dd-a', label: 'A' };
+    return {d,cls:'dd-a',label:'A'};
   });
-
-  const pct = workDays > 0 ? Math.round(((p + h * 0.5) / workDays) * 100) : 0;
-  const pctColor = pct >= 90 ? 'var(--a3)' : pct >= 60 ? 'var(--a4)' : 'var(--a2)';
-
+  const pct = workDays > 0 ? Math.round(((p+h*.5)/workDays)*100) : 0;
+  const pc = pct>=90?'var(--a3)':pct>=60?'var(--a4)':'var(--a2)';
   out.innerHTML = `
     <div class="card">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
         <div class="avatar" style="width:48px;height:48px;font-size:18px;background:${emp.color}22;color:${emp.color}">${emp.name.charAt(0).toUpperCase()}</div>
-        <div>
-          <div style="font-size:17px;font-weight:800">${emp.name}</div>
-          <div style="font-size:12px;color:var(--muted);font-family:var(--mono)">${emp.empId}${emp.dept ? ' · ' + emp.dept : ''}</div>
-        </div>
-        <div style="margin-left:auto;text-align:center">
-          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:${pctColor}">${pct}%</div>
-          <div style="font-size:10px;color:var(--muted)">Attendance</div>
-        </div>
+        <div><div style="font-size:17px;font-weight:800">${emp.name}</div><div style="font-size:12px;color:var(--muted);font-family:var(--mono)">${emp.empId}${emp.dept?' · '+emp.dept:''}</div></div>
+        <div style="margin-left:auto;text-align:center"><div style="font-family:var(--mono);font-size:28px;font-weight:800;color:${pc}">${pct}%</div><div style="font-size:10px;color:var(--muted)">Attendance</div></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-        <div class="ev-stat"><div class="ev-num" style="color:var(--a3);font-size:22px">${p}</div><div class="ev-lbl">Present</div></div>
-        <div class="ev-stat"><div class="ev-num" style="color:var(--a2);font-size:22px">${a}</div><div class="ev-lbl">Absent</div></div>
-        <div class="ev-stat"><div class="ev-num" style="color:var(--a4);font-size:22px">${h}</div><div class="ev-lbl">Half Day</div></div>
-        <div class="ev-stat"><div class="ev-num" style="color:var(--accent);font-size:22px">${lateCount}</div><div class="ev-lbl">Late</div></div>
+        <div class="ts-box"><div class="ts-num" style="color:var(--a3)">${p}</div><div class="ts-lbl">Present</div></div>
+        <div class="ts-box"><div class="ts-num" style="color:var(--a2)">${a}</div><div class="ts-lbl">Absent</div></div>
+        <div class="ts-box"><div class="ts-num" style="color:var(--a4)">${h}</div><div class="ts-lbl">Half Day</div></div>
+        <div class="ts-box"><div class="ts-num" style="color:var(--accent)">${lateC}</div><div class="ts-lbl">Late</div></div>
       </div>
     </div>
     <div class="card">
-      <div class="ct">📅 ${new Date(yr, mo-1, 1).toLocaleString('hi-IN',{month:'long',year:'numeric'})} Calendar</div>
-      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
-        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(105,255,71,.2);display:inline-block"></span> Present</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,64,129,.1);display:inline-block"></span> Absent</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,171,64,.15);display:inline-block"></span> Half</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.04);display:inline-block"></span> Off</span>
+      <div class="ct">📅 ${new Date(yr,mo-1,1).toLocaleString('hi-IN',{month:'long',year:'numeric'})} Calendar</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(105,255,71,.2);display:inline-block"></span>Present</span>
+        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,64,129,.1);display:inline-block"></span>Absent</span>
+        <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,171,64,.15);display:inline-block"></span>Half</span>
       </div>
-      <div class="month-chart">${dotData.map(d => `<div class="day-dot ${d.cls}" title="${d.d}">${d.label}</div>`).join('')}</div>
+      <div class="month-chart">${dotData.map(d=>`<div class="day-dot ${d.cls}" title="${d.d}">${d.label}</div>`).join('')}</div>
     </div>
     <div class="card">
-      <div class="ct">⏱ Working Hours This Month</div>
+      <div class="ct">⏱ Working Hours</div>
       <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--accent);text-align:center;padding:8px 0">${totalHrs.toFixed(1)} hrs</div>
-      <div style="text-align:center;font-size:12px;color:var(--muted)">Out of ${workDays * (emp.dutyHrs || 8)} expected hours</div>
+      <div style="text-align:center;font-size:12px;color:var(--muted)">Expected: ${workDays*(emp.dutyHrs||8)} hrs</div>
     </div>`;
-}
+};
 
-// ═══════════════════════════════════════════
-// SETTINGS
-// ═══════════════════════════════════════════
+// ═══ SETTINGS ═══
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function loadSettings() {
-  const s = DB.settings;
-  document.getElementById('sCompany').value = s.company || '';
-  document.getElementById('sDutyHrs').value = s.dutyHrs || 8;
-  document.getElementById('sHalfDay').value = s.halfDayHrs || 4;
-  document.getElementById('sPunchGap').value = s.punchGap || 2;
-  document.getElementById('sPass').value = '';
-
-  // Weekday toggles
+function loadSettingsUI() {
+  document.getElementById('sCompany').value = settings.company || '';
+  document.getElementById('sDutyHrs').value = settings.dutyHrs || 8;
+  document.getElementById('sHalfDay').value = settings.halfDayHrs || 4;
+  document.getElementById('sPunchGap').value = settings.punchGap || 2;
   const cont = document.getElementById('weekdayToggles');
-  cont.innerHTML = DAYS.map((d, i) => `
+  cont.innerHTML = DAYS.map((d,i) => `
     <label style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
       <div style="font-size:11px;color:var(--muted);font-weight:700">${d}</div>
-      <label class="toggle">
-        <input type="checkbox" id="wd${i}" ${s.weekOff.includes(i) ? 'checked' : ''}/>
-        <span class="toggle-slider"></span>
-      </label>
+      <label class="toggle"><input type="checkbox" id="wd${i}" ${settings.weekOff.includes(i)?'checked':''}/><span class="toggle-slider"></span></label>
     </label>`).join('');
 }
 
-function saveSettings() {
-  DB.settings.company = document.getElementById('sCompany').value.trim() || 'My Office';
-  DB.settings.dutyHrs = parseFloat(document.getElementById('sDutyHrs').value) || 8;
-  DB.settings.halfDayHrs = parseFloat(document.getElementById('sHalfDay').value) || 4;
-  DB.settings.punchGap = parseFloat(document.getElementById('sPunchGap').value) || 2;
-  DB.settings.weekOff = DAYS.map((_, i) => document.getElementById('wd' + i)?.checked ? i : -1).filter(i => i >= 0);
-  DB.save();
-  toast('✅ Settings saved!');
-}
+window.saveSettings = function() {
+  settings.company = document.getElementById('sCompany').value.trim() || 'My Office';
+  settings.dutyHrs = parseFloat(document.getElementById('sDutyHrs').value) || 8;
+  settings.halfDayHrs = parseFloat(document.getElementById('sHalfDay').value) || 4;
+  settings.punchGap = parseFloat(document.getElementById('sPunchGap').value) || 2;
+  settings.weekOff = DAYS.map((_,i) => document.getElementById('wd'+i)?.checked ? i : -1).filter(i => i>=0);
+  saveSettingsToDB();
+};
 
-function changePass() {
+window.changePass = function() {
   const np = document.getElementById('sPass').value.trim();
-  if (!np || np.length < 4) { toast('⚠️ Password kam se kam 4 characters ka hona chahiye'); return; }
-  DB.settings.adminPass = np;
-  DB.save();
+  if (!np || np.length < 4) { toast('⚠️ 4+ characters ka password chahiye'); return; }
+  settings.adminPass = np;
+  saveSettingsToDB();
   document.getElementById('sPass').value = '';
-  toast('✅ Password updated!');
-}
+};
 
-// ═══════════════════════════════════════════
-// ADMIN CONFIRM (for destructive actions)
-// ═══════════════════════════════════════════
-let pendingAdminAction = null;
-let pendingAdminArg = null;
+// ═══ ADMIN CONFIRM ═══
+let pendingAction = null, pendingArg = null;
 
-function adminAction(action, arg) {
-  pendingAdminAction = action;
-  pendingAdminArg = arg;
-  const msgs = {
-    clearLogs: 'Sab punch logs delete karna chahte hain?',
-    clearAll: '⚠️ POORA DATA delete hoga — employees + logs!',
-    deleteEmp: 'Is employee ko delete karna chahte hain?'
-  };
-  document.getElementById('adminModalMsg').textContent = msgs[action] || 'Confirm karein:';
+window.adminAction = function(action, arg) {
+  pendingAction = action; pendingArg = arg;
+  const msgs = { clearLogs:'Sab punch logs delete karna chahte hain?', clearAll:'⚠️ POORA DATA delete hoga!', deleteEmp:'Is employee ko delete karein?' };
+  document.getElementById('adminModalMsg').textContent = msgs[action] || 'Confirm:';
   document.getElementById('adminPassInput').value = '';
   document.getElementById('adminModal').classList.add('open');
-}
+};
 
-function closeAdminModal() {
-  document.getElementById('adminModal').classList.remove('open');
-  pendingAdminAction = null; pendingAdminArg = null;
-}
+window.closeAdminModal = function() { document.getElementById('adminModal').classList.remove('open'); pendingAction=null; pendingArg=null; };
 
-function confirmAdmin() {
+window.confirmAdmin = async function() {
   const entered = document.getElementById('adminPassInput').value;
-  if (entered !== DB.settings.adminPass) { toast('❌ Wrong password!'); return; }
+  if (entered !== settings.adminPass) { toast('❌ Wrong password!'); return; }
   closeAdminModal();
+  setSyncStatus('syncing');
+  try {
+    if (pendingAction === 'clearLogs') {
+      const batch = writeBatch(db);
+      const snap = await getDocs(logsRef);
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      toast('🗑 Sab logs deleted from cloud!');
+    } else if (pendingAction === 'clearAll') {
+      const b1 = writeBatch(db);
+      const ls = await getDocs(logsRef);
+      ls.docs.forEach(d => b1.delete(d.ref));
+      await b1.commit();
+      const b2 = writeBatch(db);
+      const es = await getDocs(empRef);
+      es.docs.forEach(d => b2.delete(d.ref));
+      await b2.commit();
+      toast('🗑 Sab data deleted from cloud!');
+    } else if (pendingAction === 'deleteEmp') {
+      await deleteDoc(doc(db, 'employees', pendingArg));
+      toast('🗑 Employee deleted from cloud!');
+    }
+    setSyncStatus('online');
+  } catch(e) { setSyncStatus('offline'); toast('❌ Error: ' + e.message); }
+};
 
-  if (pendingAdminAction === 'clearLogs') {
-    DB.logs = []; DB.save();
-    renderLogs(); renderRecentPunches(); renderScanStats(); updateDrawerBadge();
-    toast('🗑 Logs cleared!');
-  } else if (pendingAdminAction === 'clearAll') {
-    DB.employees = []; DB.logs = []; DB.save();
-    renderEmployees(); renderLogs(); renderScanStats(); renderRecentPunches(); updateDrawerBadge();
-    toast('🗑 Sab delete ho gaya!');
-  } else if (pendingAdminAction === 'deleteEmp') {
-    const id = pendingAdminArg;
-    DB.employees = DB.employees.filter(e => e.id !== id);
-    DB.save(); renderEmployees(); renderScanStats();
-    toast('🗑 Employee deleted!');
-  }
-}
-
-// ═══════════════════════════════════════════
-// EXPORT
-// ═══════════════════════════════════════════
+// ═══ EXPORT ═══
 function populateExportFilters() {
-  const sel = document.getElementById('xDept');
-  sel.innerHTML = '<option value="all">Sab Departments</option>' + DB.getDepts().map(d => `<option value="${d}">${d}</option>`).join('');
+  const depts = [...new Set(employees.map(e => e.dept).filter(Boolean))];
+  document.getElementById('xDept').innerHTML = '<option value="all">Sab Departments</option>' + depts.map(d=>`<option value="${d}">${d}</option>`).join('');
 }
 
-function getExportLogs() {
+window.exportExcel = function() {
   const from = document.getElementById('xFrom').value;
   const to = document.getElementById('xTo').value;
   const dept = document.getElementById('xDept').value;
-  let logs = DB.logs.filter(l => l.date >= from && l.date <= to);
-  if (dept !== 'all') logs = logs.filter(l => l.dept === dept);
-  return { logs, from, to };
-}
-
-function exportExcel() {
-  const { logs, from, to } = getExportLogs();
-  if (!logs.length) { toast('⚠️ Koi data nahi'); return; }
-
+  let filtered = logs.filter(l => l.date >= from && l.date <= to);
+  if (dept !== 'all') filtered = filtered.filter(l => l.dept === dept);
+  if (!filtered.length) { toast('⚠️ Koi data nahi'); return; }
   const wb = XLSX.utils.book_new();
-
-  // Sheet 1: Raw Punch Logs
-  const h1 = ['Date','Time','Employee Name','Emp ID','Department','Punch Type','Worked Hours'];
-  const r1 = logs.map(l => [l.date, l.time, l.empName, l.empIdNum || '-', l.dept || '-', l.type.toUpperCase(), l.hours || '']);
-  const ws1 = XLSX.utils.aoa_to_sheet([h1, ...r1]);
-  ws1['!cols'] = [{wch:12},{wch:12},{wch:22},{wch:10},{wch:15},{wch:12},{wch:14}];
+  const h1 = ['Date','Time','Employee Name','Emp ID','Department','Punch Type','Worked Hours','Late'];
+  const r1 = filtered.map(l => [l.date, l.time, l.empName, l.empIdNum||'-', l.dept||'-', l.type.toUpperCase(), l.hours||'', l.late?'YES':'NO']);
+  const ws1 = XLSX.utils.aoa_to_sheet([h1,...r1]);
+  ws1['!cols'] = [{wch:12},{wch:12},{wch:22},{wch:10},{wch:15},{wch:12},{wch:12},{wch:6}];
   XLSX.utils.book_append_sheet(wb, ws1, 'Punch Logs');
-
-  // Sheet 2: Attendance Summary
+  // Summary sheet
   const dates = [];
-  let cur = new Date(from + 'T00:00:00');
-  while (cur <= new Date(to + 'T00:00:00')) {
-    dates.push(cur.toISOString().split('T')[0]);
-    cur.setDate(cur.getDate() + 1);
-  }
-  const workDates = dates.filter(d => !DB.settings.weekOff.includes(new Date(d + 'T00:00:00').getDay()));
-
-  const h2 = ['Emp ID','Name','Department', ...workDates, 'Present','Half Day','Absent','Late','Total Hours','Attendance%'];
-  const r2 = DB.employees.map(emp => {
-    let p=0,a=0,hd=0,lateC=0,totalHrs=0;
-    const dayVals = workDates.map(d => {
-      const att = getAttStatus(emp.id, d);
-      if (att.status==='P') p++;
-      else if (att.status==='H') hd++;
-      else a++;
-      if (att.late) lateC++;
-      totalHrs += att.workedHrs;
-      return att.status;
-    });
-    const pct = workDates.length > 0 ? Math.round(((p + hd*0.5)/workDates.length)*100) : 0;
-    return [emp.empId, emp.name, emp.dept||'', ...dayVals, p, hd, a, lateC, totalHrs.toFixed(1), pct+'%'];
+  let cur = new Date(from+'T00:00:00');
+  while(cur<=new Date(to+'T00:00:00')){dates.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}
+  const workDates = dates.filter(d=>!settings.weekOff.includes(new Date(d+'T00:00:00').getDay()));
+  const h2=['Emp ID','Name','Dept',...workDates,'Present','Half','Absent','Late','Total Hrs','Att%'];
+  const r2=employees.map(emp=>{
+    let p=0,a=0,h=0,lc=0,th=0;
+    const dv=workDates.map(d=>{const att=getAttStatus(emp.id,d);if(att.status==='P')p++;else if(att.status==='H')h++;else a++;if(att.late)lc++;th+=att.workedHrs;return att.status;});
+    const pct=workDates.length>0?Math.round(((p+h*.5)/workDates.length)*100):0;
+    return[emp.empId,emp.name,emp.dept||'',...dv,p,h,a,lc,th.toFixed(1),pct+'%'];
   });
-  const ws2 = XLSX.utils.aoa_to_sheet([h2, ...r2]);
-  XLSX.utils.book_append_sheet(wb, ws2, 'Attendance Summary');
-
-  XLSX.writeFile(wb, 'punchx_attendance.xlsx');
+  const ws2=XLSX.utils.aoa_to_sheet([h2,...r2]);
+  XLSX.utils.book_append_sheet(wb,ws2,'Summary');
+  XLSX.writeFile(wb,'punchx_attendance.xlsx');
   toast('📗 Excel download ho rahi hai!');
-}
+};
 
-function exportCSV() {
-  const { logs } = getExportLogs();
-  if (!logs.length) { toast('⚠️ Koi data nahi'); return; }
-  const rows = [['Date','Time','Employee Name','Emp ID','Department','Type','Worked Hours'], ...logs.map(l => [l.date, l.time, l.empName, l.empIdNum||'-', l.dept||'-', l.type.toUpperCase(), l.hours||''])];
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')], {type:'text/csv'}));
-  a.download = 'punchx_logs.csv'; a.click();
+window.exportCSV = function() {
+  const from=document.getElementById('xFrom').value, to=document.getElementById('xTo').value;
+  const dept=document.getElementById('xDept').value;
+  let filtered=logs.filter(l=>l.date>=from&&l.date<=to);
+  if(dept!=='all')filtered=filtered.filter(l=>l.dept===dept);
+  if(!filtered.length){toast('⚠️ Koi data nahi');return;}
+  const rows=[['Date','Time','Name','Emp ID','Dept','Type','Hours','Late'],...filtered.map(l=>[l.date,l.time,l.empName,l.empIdNum||'-',l.dept||'-',l.type.toUpperCase(),l.hours||'',l.late?'YES':'NO'])];
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
+  a.download='punchx_logs.csv';a.click();
   toast('📄 CSV download ho rahi hai!');
-}
+};
 
-function backupData() {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({employees:DB.employees,logs:DB.logs,settings:DB.settings,at:new Date().toISOString()},null,2)], {type:'application/json'}));
-  a.download = 'punchx_backup.json'; a.click();
+window.backupData = function() {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({employees,logs,settings,at:new Date().toISOString()},null,2)],{type:'application/json'}));
+  a.download='punchx_backup.json';a.click();
   toast('💾 Backup saved!');
+};
+
+// ═══ NAVIGATION ═══
+window.navTo = function(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.drawer-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const di=document.getElementById('di-'+id);
+  if(di) di.classList.add('active');
+  closeDrawer();
+  if(id==='logs') renderLogs();
+  if(id==='settings'){loadSettingsUI();}
+  if(id==='export') populateExportFilters();
+  if(id==='reports') populateReportDept();
+  window.scrollTo(0,0);
+};
+
+window.toggleDrawer = function() {
+  document.getElementById('drawer').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+  document.getElementById('burgerBtn').classList.toggle('open');
+};
+window.closeDrawer = function() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('burgerBtn').classList.remove('open');
+};
+
+// ═══ CLOCK ═══
+function updateClock() {
+  const n=new Date();
+  document.getElementById('liveTime').textContent=n.toLocaleTimeString('en-IN',{hour12:false});
+  document.getElementById('liveDate').textContent=n.toLocaleDateString('hi-IN',{weekday:'short',day:'numeric',month:'short'});
 }
+setInterval(updateClock,1000); updateClock();
 
-// ═══════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
+// ═══ INIT DATES ═══
+const t=new Date().toISOString().split('T')[0], m=t.slice(0,7);
+document.getElementById('logDate').value=t;
+document.getElementById('rFrom').value=m+'-01'; document.getElementById('rTo').value=t;
+document.getElementById('xFrom').value=m+'-01'; document.getElementById('xTo').value=t;
+document.getElementById('evMonth').value=m;
 
-// ═══════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════
-renderEmployees();
-renderScanStats();
-renderRecentPunches();
-updateDrawerBadge();
-loadSettings();
+// ═══ PWA ═══
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBar').classList.add('show');});
+window.installPWA=function(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{document.getElementById('installBar').classList.remove('show');deferredPrompt=null;})}else toast('Browser menu → Add to Home Screen 📱');};
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+// ═══ TOAST ═══
+window.toast = function(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+};
+
+// ═══ INIT ═══
+setSyncStatus('syncing');
+loadSettingsFromDB().then(() => {
+  loadSettingsUI();
+  setupListeners();
+});
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
