@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#060d14"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="PunchX"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>PunchX — Office Attendance</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#060d14;--surface:#0d1a26;--card:#0f2030;--border:#1a3a55;
+      --accent:#00ffcc;--accent2:#ff4d6d;--blue:#0af;
+      --green:#00ffcc;--red:#ff4d6d;--yellow:#ffc44d;
+      --text:#dff2ff;--muted:#4a7a99;
+      --mono:'Space Mono',monospace;--sans:'Outfit',sans-serif;--r:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(0,255,204,.07) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 10% 90%,rgba(255,77,109,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+    .hdr{position:sticky;top:0;z-index:200;background:rgba(6,13,20,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+    .hdr-logo{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:-1px;background:linear-gradient(90deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hdr-time{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:1px}
+    .hdr-date{font-size:11px;color:var(--muted);text-align:right}
+
+    .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:57px;z-index:199}
+    .nav::-webkit-scrollbar{display:none}
+    .nb{flex:1;min-width:72px;padding:13px 6px;border:none;background:transparent;color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:600;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+    .nb.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,255,204,.04)}
+
+    .page{display:none;padding:18px;max-width:620px;margin:0 auto;position:relative;z-index:1}
+    .page.active{display:block}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+    .card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),transparent 60%)}
+    .ct{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+
+    .scan-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px}
+    #qr-reader{width:100%!important;border-radius:12px;overflow:hidden;border:2px solid var(--border)!important}
+    #qr-reader video{border-radius:10px}
+    #qr-reader__scan_region{background:transparent!important}
+    #qr-reader__dashboard{background:var(--surface)!important;padding:10px!important;border-top:1px solid var(--border)}
+    #qr-reader__dashboard button{background:var(--accent)!important;color:#000!important;border:none!important;border-radius:8px!important;padding:7px 14px!important;font-family:var(--sans)!important;font-weight:700!important;cursor:pointer!important;margin:3px!important}
+    #qr-reader__dashboard select{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:8px!important;padding:5px!important;font-family:var(--sans)!important}
+    #qr-reader__header_message{color:var(--muted)!important;font-family:var(--sans)!important;font-size:12px!important}
+
+    .scan-status{margin-top:14px;padding:14px;border-radius:10px;font-family:var(--mono);font-size:13px;text-align:center;background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.2);color:var(--accent);letter-spacing:.3px;min-height:50px;display:flex;align-items:center;justify-content:center;line-height:1.4}
+    .scan-status.success{background:rgba(0,255,204,.14);border-color:var(--green);animation:pulse .4s ease}
+    .scan-status.error{background:rgba(255,77,109,.12);border-color:var(--red);color:var(--red)}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+    .punch-toggle{display:flex;background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden;margin-bottom:14px}
+    .pt-btn{flex:1;padding:12px;border:none;background:transparent;color:var(--muted);font-family:var(--sans);font-weight:700;font-size:14px;cursor:pointer;transition:all .2s}
+    .pt-btn.in.active{background:rgba(0,255,204,.15);color:var(--green)}
+    .pt-btn.out.active{background:rgba(255,77,109,.15);color:var(--red)}
+
+    .emp-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(26,58,85,.5);animation:fadeIn .3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .emp-item:last-child{border-bottom:none}
+    .avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:15px;font-weight:700;flex-shrink:0}
+    .emp-info{flex:1;min-width:0}
+    .emp-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .emp-meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
+    .btn-qr{background:rgba(0,175,255,.1);border:1px solid rgba(0,175,255,.3);color:var(--blue);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0;font-family:var(--sans)}
+    .btn-del{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.2);color:var(--red);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px;flex-shrink:0}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;max-width:300px;width:100%;text-align:center;animation:modalIn .3s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes modalIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+    .modal-name{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent);margin-bottom:3px}
+    .modal-id{font-size:12px;color:var(--muted);margin-bottom:18px;font-family:var(--mono)}
+    #qrDisplay{display:flex;justify-content:center;margin-bottom:16px}
+    #qrDisplay canvas,#qrDisplay img{border-radius:10px!important;border:4px solid #fff!important}
+    .modal-close{background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 24px;border-radius:10px;cursor:pointer;font-family:var(--sans);font-weight:600;margin-top:4px}
+
+    .log-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(26,58,85,.4)}
+    .log-item:last-child{border-bottom:none}
+    .log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .log-info{flex:1;min-width:0}
+    .log-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .log-meta{font-size:10px;color:var(--muted);font-family:var(--mono)}
+    .log-time{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap}
+    .log-type{font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 7px;border-radius:20px}
+    .log-type.in{background:rgba(0,255,204,.12);color:var(--green);border:1px solid rgba(0,255,204,.3)}
+    .log-type.out{background:rgba(255,77,109,.12);color:var(--red);border:1px solid rgba(255,77,109,.3)}
+
+    .ig{margin-bottom:14px}
+    .il{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    input,select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,255,204,.1)}
+    select option{background:var(--surface)}
+    input[type="date"]{color-scheme:dark}
+
+    .btn{padding:13px 20px;border-radius:12px;border:none;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;width:100%}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#00bbaa);color:#000}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 20px rgba(0,255,204,.25)}
+    .btn-export{background:rgba(0,255,204,.1);border:1px solid rgba(0,255,204,.3);color:var(--green)}
+    .btn-danger{background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);color:var(--red)}
+    .btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;width:auto}
+
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center}
+    .stat-n{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
+    .stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+    .rtable{width:100%;border-collapse:collapse;font-size:12px}
+    .rtable th{background:rgba(0,255,204,.06);color:var(--accent);padding:9px 10px;text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+    .rtable td{padding:9px 10px;border-bottom:1px solid rgba(26,58,85,.3)}
+    .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono)}
+    .by{background:rgba(255,196,77,.12);color:var(--yellow);border:1px solid rgba(255,196,77,.3)}
+
+    .empty{text-align:center;padding:36px 20px;color:var(--muted)}
+    .empty-ic{font-size:36px;margin-bottom:10px;opacity:.5}
+
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--accent);color:var(--text);padding:10px 20px;border-radius:30px;font-size:13px;z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 0 20px rgba(0,255,204,.2);font-weight:500}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    .install-bar{background:linear-gradient(135deg,rgba(0,255,204,.08),rgba(0,175,255,.08));border:1px solid rgba(0,255,204,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;display:none;align-items:center;gap:12px}
+    .install-bar.show{display:flex}
+
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">PunchX</div>
+  <div>
+    <div class="hdr-time" id="liveTime">00:00:00</div>
+    <div class="hdr-date" id="liveDate"></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb active" onclick="showPage('scan')">📷 Scan</button>
+  <button class="nb" onclick="showPage('employees')">👤 Employees</button>
+  <button class="nb" onclick="showPage('logs')">📋 Logs</button>
+  <button class="nb" onclick="showPage('reports')">📊 Reports</button>
+  <button class="nb" onclick="showPage('export')">📤 Export</button>
+</div>
+
+<!-- SCAN PAGE -->
+<div class="page active" id="page-scan">
+  <div class="install-bar" id="installBar">
+    <div style="font-size:22px">📱</div>
+    <div style="flex:1;font-size:12px;line-height:1.5"><strong style="color:var(--accent)">App Install Karein!</strong><br>Home Screen par add karein</div>
+    <button style="background:var(--accent);color:#000;border:none;padding:7px 14px;border-radius:20px;font-weight:700;cursor:pointer;font-size:11px;font-family:var(--sans)" onclick="installPWA()">Install</button>
+  </div>
+
+  <div class="scan-hero">
+    <div class="punch-toggle">
+      <button class="pt-btn in active" id="btnIn" onclick="setPunchType('in')">⬆ PUNCH IN</button>
+      <button class="pt-btn out" id="btnOut" onclick="setPunchType('out')">⬇ PUNCH OUT</button>
+    </div>
+    <div id="qr-reader"></div>
+    <div class="scan-status" id="scanStatus">📷 Camera ke saamne QR code rakhen…</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="stIn" style="color:var(--green)">0</div><div class="stat-l">Aaj In</div></div>
+    <div class="stat"><div class="stat-n" id="stOut" style="color:var(--red)">0</div><div class="stat-l">Aaj Out</div></div>
+    <div class="stat"><div class="stat-n" id="stEmp" style="color:var(--blue)">0</div><div class="stat-l">Employees</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Recent Punches</div>
+    <div id="recentPunches"><div class="empty"><div class="empty-ic">⏱</div><div style="font-size:13px">Abhi koi punch nahi hua</div></div></div>
+  </div>
+</div>
+
+<!-- EMPLOYEES PAGE -->
+<div class="page" id="page-employees">
+  <div class="card">
+    <div class="ct">✨ New Employee Add Karein</div>
+    <div class="ig"><label class="il">Naam *</label><input type="text" id="eN" placeholder="Employee ka naam"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ig"><label class="il">Employee ID</label><input type="text" id="eI" placeholder="EMP001"/></div>
+      <div class="ig"><label class="il">Department</label><input type="text" id="eD" placeholder="HR / IT / Sales"/></div>
+    </div>
+    <button class="btn btn-primary" onclick="addEmployee()">+ Add Employee & Generate QR</button>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="ct" style="margin:0">👤 Employee List (<span id="empCount">0</span>)</div>
+      <button class="btn btn-danger btn-sm" onclick="clearEmployees()">🗑 Clear</button>
+    </div>
+    <div id="empList"><div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Koi employee nahi. Upar se add karein!</div></div></div>
+  </div>
+</div>
+
+<!-- LOGS PAGE -->
+<div class="page" id="page-logs">
+  <div class="card">
+    <div class="ct">🔍 Filter</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ig" style="margin:0"><label class="il">Date</label><input type="date" id="logDate"/></div>
+      <div class="ig" style="margin:0"><label class="il">Type</label>
+        <select id="logType"><option value="all">All</option><option value="in">Punch In</option><option value="out">Punch Out</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="renderLogs()" style="margin-top:12px">Filter Karein</button>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="ct" style="margin:0">All Punches</div>
+      <button class="btn btn-danger btn-sm" onclick="clearLogs()">🗑 Clear</button>
+    </div>
+    <div id="logsList"><div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi</div></div></div>
+  </div>
+</div>
+
+<!-- REPORTS PAGE -->
+<div class="page" id="page-reports">
+  <div class="card">
+    <div class="ct">📊 Date Range</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ig" style="margin:0"><label class="il">From</label><input type="date" id="rFrom"/></div>
+      <div class="ig" style="margin:0"><label class="il">To</label><input type="date" id="rTo"/></div>
+    </div>
+    <button class="btn btn-primary" onclick="genReport()" style="margin-top:12px">Report Generate Karein</button>
+  </div>
+  <div id="reportOut"></div>
+</div>
+
+<!-- EXPORT PAGE -->
+<div class="page" id="page-export">
+  <div class="card">
+    <div class="ct">📤 Export Settings</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ig"><label class="il">From</label><input type="date" id="xFrom"/></div>
+      <div class="ig"><label class="il">To</label><input type="date" id="xTo"/></div>
+    </div>
+    <div class="ig"><label class="il">Department</label>
+      <select id="xDept"><option value="all">Sab Departments</option></select>
+    </div>
+  </div>
+  <button class="btn btn-export" onclick="exportExcel()" style="margin-bottom:10px">📗 Excel Export (.xlsx)</button>
+  <button class="btn" style="background:rgba(255,196,77,.1);border:1px solid rgba(255,196,77,.3);color:var(--yellow)" onclick="exportCSV()">📄 CSV Export</button>
+  <div class="card" style="margin-top:14px">
+    <div class="ct">⚙ Data Management</div>
+    <button class="btn btn-danger" onclick="clearAll()" style="margin-bottom:10px">🗑 Sab Data Delete</button>
+    <button class="btn" style="background:rgba(0,175,255,.1);border:1px solid rgba(0,175,255,.3);color:var(--blue)" onclick="backupData()">💾 JSON Backup</button>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">QR Card</div>
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-id" id="modalMeta"></div>
+    <div id="qrDisplay"></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px;font-family:var(--mono);line-height:1.5">Print karein ya screenshot lein<br>Scan page par camera se scan karein</div>
+    <button class="modal-close" onclick="closeModal()">✕ Band Karein</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// DATA
+const DB={
+  employees:[],logs:[],
+  save(){localStorage.setItem('px_e',JSON.stringify(this.employees));localStorage.setItem('px_l',JSON.stringify(this.logs))},
+  load(){try{const e=localStorage.getItem('px_e');const l=localStorage.getItem('px_l');if(e)this.employees=JSON.parse(e);if(l)this.logs=JSON.parse(l)}catch(e){}},
+  getDepts(){return[...new Set(this.employees.map(e=>e.dept).filter(Boolean))]}
+};
+DB.load();
+
+// CLOCK
+function updateClock(){
+  const n=new Date();
+  document.getElementById('liveTime').textContent=n.toLocaleTimeString('en-IN',{hour12:false});
+  document.getElementById('liveDate').textContent=n.toLocaleDateString('hi-IN',{weekday:'short',day:'numeric',month:'short'});
+}
+setInterval(updateClock,1000);updateClock();
+
+// DATES
+function initDates(){
+  const t=new Date().toISOString().split('T')[0];
+  const m=t.slice(0,7);
+  document.getElementById('logDate').value=t;
+  document.getElementById('rFrom').value=m+'-01';document.getElementById('rTo').value=t;
+  document.getElementById('xFrom').value=m+'-01';document.getElementById('xTo').value=t;
+}
+initDates();
+
+// PWA
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBar').classList.add('show')});
+function installPWA(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{document.getElementById('installBar').classList.remove('show');deferredPrompt=null})}else toast('Browser menu → "Add to Home Screen" 📱')}
+
+// NAV
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelector(`.nb[onclick*="${id}"]`).classList.add('active');
+  if(id==='logs')renderLogs();
+  if(id==='export')populateDeptFilter();
+  window.scrollTo(0,0);
+}
+
+// SCANNER
+let scanner=null,punchType='in',lastScan='',scanCooldown=false;
+
+function setPunchType(t){
+  punchType=t;
+  document.getElementById('btnIn').classList.toggle('active',t==='in');
+  document.getElementById('btnOut').classList.toggle('active',t==='out');
+  setStatus(t==='in'?'📷 QR scan karein — PUNCH IN mode active':'📷 QR scan karein — PUNCH OUT mode active','');
+}
+
+function setStatus(msg,cls){
+  const el=document.getElementById('scanStatus');
+  el.textContent=msg;el.className='scan-status'+(cls?' '+cls:'');
+}
+
+function startScanner(){
+  if(scanner)return;
+  scanner=new Html5Qrcode('qr-reader');
+  const cfg={fps:10,qrbox:{width:220,height:220}};
+  scanner.start({facingMode:'environment'},cfg,onQR,()=>{})
+    .catch(()=>scanner.start({facingMode:'user'},cfg,onQR,()=>{})
+      .catch(()=>setStatus('❌ Camera permission dijiye. Browser settings mein allow karein.','error')));
+}
+
+function onQR(text){
+  if(scanCooldown||text===lastScan)return;
+  lastScan=text;scanCooldown=true;
+
+  if(!text.startsWith('PUNCHX::')){
+    setStatus('⚠️ Yeh PunchX QR code nahi hai!','error');
+    setTimeout(()=>{scanCooldown=false;lastScan='';setStatus('📷 Camera ke saamne QR code rakhen…','')},2500);
+    return;
+  }
+
+  const empId=text.replace('PUNCHX::','');
+  const emp=DB.employees.find(e=>e.id===empId);
+  if(!emp){
+    setStatus('❌ Employee nahi mila! Employees page par pehle add karein.','error');
+    setTimeout(()=>{scanCooldown=false;lastScan='';setStatus('📷 Camera ke saamne QR code rakhen…','')},2500);
+    return;
+  }
+
+  const now=new Date();
+  const log={
+    logId:'l_'+Date.now(),empId:emp.id,empName:emp.name,
+    dept:emp.dept||'',empIdNum:emp.empId||'-',
+    type:punchType,ts:now.toISOString(),
+    date:now.toISOString().split('T')[0],
+    time:now.toLocaleTimeString('en-IN',{hour12:true})
+  };
+  DB.logs.unshift(log);DB.save();
+
+  const icon=punchType==='in'?'✅':'🚪';
+  const label=punchType==='in'?'PUNCH IN':'PUNCH OUT';
+  setStatus(`${icon} ${emp.name}  —  ${label}  @  ${log.time}`,'success');
+  toast(`${icon} ${emp.name} ${label} recorded!`);
+  renderScanStats();renderRecentPunches();
+
+  setTimeout(()=>{scanCooldown=false;lastScan='';setStatus('📷 Camera ke saamne QR code rakhen…','')},3000);
+}
+
+setTimeout(startScanner,600);
+
+// SCAN STATS
+function renderScanStats(){
+  const today=new Date().toISOString().split('T')[0];
+  const tl=DB.logs.filter(l=>l.date===today);
+  document.getElementById('stIn').textContent=tl.filter(l=>l.type==='in').length;
+  document.getElementById('stOut').textContent=tl.filter(l=>l.type==='out').length;
+  document.getElementById('stEmp').textContent=DB.employees.length;
+}
+
+function renderRecentPunches(){
+  const div=document.getElementById('recentPunches');
+  const r=DB.logs.slice(0,8);
+  if(!r.length){div.innerHTML=`<div class="empty"><div class="empty-ic">⏱</div><div style="font-size:13px">Abhi koi punch nahi hua</div></div>`;return}
+  div.innerHTML=r.map(logHTML).join('');
+}
+
+function logHTML(l){
+  const c=l.type==='in'?'var(--green)':'var(--red)';
+  return `<div class="log-item">
+    <div class="log-dot" style="background:${c}"></div>
+    <div class="log-info"><div class="log-name">${l.empName}</div><div class="log-meta">${l.dept||''}${l.dept?' · ':''}${l.date}</div></div>
+    <div style="text-align:right;flex-shrink:0">
+      <div class="log-time" style="color:${c}">${l.time}</div>
+      <span class="log-type ${l.type}">${l.type.toUpperCase()}</span>
+    </div>
+  </div>`;
+}
+
+// EMPLOYEES
+const COLORS=['#00ffcc','#0af','#ff4d6d','#ffc44d','#ea80fc','#69f0ae','#ff6e40','#40c4ff'];
+function getColor(n){let h=0;for(let c of n)h+=c.charCodeAt(0);return COLORS[h%COLORS.length]}
+
+function addEmployee(){
+  const name=document.getElementById('eN').value.trim();
+  const empId=document.getElementById('eI').value.trim();
+  const dept=document.getElementById('eD').value.trim();
+  if(!name){toast('⚠️ Naam zaroori hai!');return}
+  const emp={id:'e_'+Date.now(),name,empId:empId||'EMP'+String(DB.employees.length+1).padStart(3,'0'),dept,color:getColor(name)};
+  DB.employees.push(emp);DB.save();
+  document.getElementById('eN').value='';document.getElementById('eI').value='';document.getElementById('eD').value='';
+  renderEmployees();renderScanStats();
+  toast('✅ '+name+' added! QR button se code dekhen.');
+}
+
+function deleteEmployee(id){
+  if(!confirm('Delete karein?'))return;
+  DB.employees=DB.employees.filter(e=>e.id!==id);DB.save();
+  renderEmployees();renderScanStats();toast('🗑 Deleted');
+}
+
+function clearEmployees(){
+  if(!confirm('Sab employees delete karein?'))return;
+  DB.employees=[];DB.save();renderEmployees();renderScanStats();toast('🗑 Clear!');
+}
+
+function renderEmployees(){
+  const list=document.getElementById('empList');
+  document.getElementById('empCount').textContent=DB.employees.length;
+  if(!DB.employees.length){list.innerHTML=`<div class="empty"><div class="empty-ic">👤</div><div style="font-size:13px">Koi employee nahi</div></div>`;return}
+  list.innerHTML=DB.employees.map(e=>`
+    <div class="emp-item">
+      <div class="avatar" style="background:${e.color}22;color:${e.color}">${e.name.charAt(0).toUpperCase()}</div>
+      <div class="emp-info">
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-meta">${e.empId}${e.dept?' · '+e.dept:''}</div>
+      </div>
+      <button class="btn-qr" onclick="showQR('${e.id}')">📱 QR</button>
+      <button class="btn-del" onclick="deleteEmployee('${e.id}')">🗑</button>
+    </div>`).join('');
+}
+
+// QR MODAL
+function showQR(id){
+  const emp=DB.employees.find(e=>e.id===id);
+  if(!emp)return;
+  document.getElementById('modalName').textContent=emp.name;
+  document.getElementById('modalMeta').textContent=emp.empId+(emp.dept?' · '+emp.dept:'');
+  const display=document.getElementById('qrDisplay');
+  display.innerHTML='';
+  new QRCode(display,{text:'PUNCHX::'+emp.id,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  document.getElementById('qrModal').classList.add('open');
+}
+function closeModal(){document.getElementById('qrModal').classList.remove('open')}
+document.getElementById('qrModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+// LOGS
+function renderLogs(){
+  const date=document.getElementById('logDate').value;
+  const type=document.getElementById('logType').value;
+  let logs=DB.logs;
+  if(date)logs=logs.filter(l=>l.date===date);
+  if(type!=='all')logs=logs.filter(l=>l.type===type);
+  const div=document.getElementById('logsList');
+  if(!logs.length){div.innerHTML=`<div class="empty"><div class="empty-ic">📋</div><div style="font-size:13px">Koi log nahi mila</div></div>`;return}
+  div.innerHTML=logs.map(logHTML).join('');
+}
+
+function clearLogs(){
+  if(!confirm('Sab logs delete karein?'))return;
+  DB.logs=[];DB.save();renderLogs();renderRecentPunches();renderScanStats();toast('🗑 Logs cleared');
+}
+
+// REPORTS
+function genReport(){
+  const from=document.getElementById('rFrom').value;
+  const to=document.getElementById('rTo').value;
+  const out=document.getElementById('reportOut');
+  const logs=DB.logs.filter(l=>l.date>=from&&l.date<=to);
+  if(!logs.length){out.innerHTML=`<div class="card"><div class="empty"><div class="empty-ic">📊</div><div style="font-size:13px">Is period mein koi punch nahi</div></div></div>`;return}
+
+  const empMap={};
+  DB.employees.forEach(e=>{empMap[e.id]={name:e.name,empId:e.empId,dept:e.dept||'',inC:0,outC:0,days:new Set()}});
+  logs.forEach(l=>{
+    if(!empMap[l.empId])empMap[l.empId]={name:l.empName,empId:l.empIdNum||'-',dept:l.dept||'',inC:0,outC:0,days:new Set()};
+    if(l.type==='in')empMap[l.empId].inC++;else empMap[l.empId].outC++;
+    empMap[l.empId].days.add(l.date);
+  });
+  const rows=Object.values(empMap).filter(r=>r.inC+r.outC>0);
+
+  out.innerHTML=`
+    <div class="card">
+      <div class="ct">Summary — ${from} to ${to}</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-n" style="color:var(--green)">${logs.filter(l=>l.type==='in').length}</div><div class="stat-l">Total In</div></div>
+        <div class="stat"><div class="stat-n" style="color:var(--red)">${logs.filter(l=>l.type==='out').length}</div><div class="stat-l">Total Out</div></div>
+        <div class="stat"><div class="stat-n" style="color:var(--blue)">${rows.length}</div><div class="stat-l">Employees</div></div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="rtable">
+        <thead><tr><th>Employee</th><th>Dept</th><th>Days</th><th>In</th><th>Out</th></tr></thead>
+        <tbody>
+          ${rows.map(r=>`<tr>
+            <td><div style="font-weight:600">${r.name}</div><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${r.empId}</div></td>
+            <td style="color:var(--muted);font-size:11px">${r.dept||'-'}</td>
+            <td><span class="badge by">${r.days.size}</span></td>
+            <td style="color:var(--green);font-weight:700;font-family:var(--mono)">${r.inC}</td>
+            <td style="color:var(--red);font-weight:700;font-family:var(--mono)">${r.outC}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// EXPORT
+function populateDeptFilter(){
+  const sel=document.getElementById('xDept');
+  sel.innerHTML='<option value="all">Sab Departments</option>'+DB.getDepts().map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+function getExportLogs(){
+  const from=document.getElementById('xFrom').value;
+  const to=document.getElementById('xTo').value;
+  const dept=document.getElementById('xDept').value;
+  let logs=DB.logs.filter(l=>l.date>=from&&l.date<=to);
+  if(dept!=='all')logs=logs.filter(l=>l.dept===dept);
+  return logs;
+}
+
+function exportExcel(){
+  const logs=getExportLogs();
+  if(!logs.length){toast('⚠️ Koi data nahi');return}
+  const wb=XLSX.utils.book_new();
+  const h1=['Date','Time','Employee Name','Emp ID','Department','Punch Type'];
+  const r1=logs.map(l=>[l.date,l.time,l.empName,l.empIdNum||'-',l.dept||'-',l.type.toUpperCase()]);
+  const ws1=XLSX.utils.aoa_to_sheet([h1,...r1]);
+  ws1['!cols']=[{wch:12},{wch:12},{wch:22},{wch:10},{wch:15},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Punch Logs');
+
+  const empMap={};
+  DB.employees.forEach(e=>{empMap[e.id]={name:e.name,empId:e.empId,dept:e.dept||'',inC:0,outC:0,days:new Set()}});
+  logs.forEach(l=>{if(!empMap[l.empId])empMap[l.empId]={name:l.empName,empId:'-',dept:'',inC:0,outC:0,days:new Set()};if(l.type==='in')empMap[l.empId].inC++;else empMap[l.empId].outC++;empMap[l.empId].days.add(l.date)});
+  const h2=['Employee Name','Emp ID','Department','Working Days','Punch In','Punch Out'];
+  const r2=Object.values(empMap).filter(r=>r.inC+r.outC>0).map(r=>[r.name,r.empId,r.dept,r.days.size,r.inC,r.outC]);
+  const ws2=XLSX.utils.aoa_to_sheet([h2,...r2]);
+  ws2['!cols']=[{wch:22},{wch:10},{wch:15},{wch:14},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Summary');
+  XLSX.writeFile(wb,'punchx_attendance.xlsx');
+  toast('📗 Excel download ho rahi hai!');
+}
+
+function exportCSV(){
+  const logs=getExportLogs();
+  if(!logs.length){toast('⚠️ Koi data nahi');return}
+  const rows=[['Date','Time','Employee Name','Emp ID','Department','Type'],...logs.map(l=>[l.date,l.time,l.empName,l.empIdNum||'-',l.dept||'-',l.type.toUpperCase()])];
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
+  a.download='punchx_logs.csv';a.click();
+  toast('📄 CSV download ho rahi hai!');
+}
+
+function clearAll(){
+  if(!confirm('POORA DATA DELETE HOGA! Sure hain?'))return;
+  DB.employees=[];DB.logs=[];DB.save();
+  renderEmployees();renderLogs();renderScanStats();renderRecentPunches();
+  toast('🗑 Sab delete ho gaya!');
+}
+
+function backupData(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({employees:DB.employees,logs:DB.logs,at:new Date().toISOString()},null,2)],{type:'application/json'}));
+  a.download='punchx_backup.json';a.click();toast('💾 Backup saved!');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// INIT
+renderEmployees();renderScanStats();renderRecentPunches();
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>
